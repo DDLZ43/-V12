@@ -1,0 +1,734 @@
+/* ===== 基础重置 ===== */
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #F5F7FA;
+  color: #333;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+}
+
+/* ===== 顶部导航 ===== */
+.top-header {
+  background: #fff;
+  border-bottom: 1px solid #E8E8E8;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.logo-icon { font-size: 20px; }
+.logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: #5B8FF9;
+  letter-spacing: 0.5px;
+}
+
+.top-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex-shrink: 1;
+  justify-content: flex-end;
+}
+.top-nav::-webkit-scrollbar { display: none; }
+
+.nav-btn {
+  padding: 8px 16px;
+  border: none;
+  background: #F0F5FF;
+  color: #5B8FF9;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all .25s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-btn:hover {
+  background: #5B8FF9;
+  color: #fff;
+  transform: translateY(-1px);
+}
+.nav-btn.active {
+  background: #5B8FF9;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(91,143,249,0.35);
+}
+.nav-icon { font-size: 13px; }
+
+/* ===== 主体区域 ===== */
+.main-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 16px;
+  overflow-x: hidden;
+}
+
+/* ===== 面板切换 ===== */
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn .3s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 卡片 ===== */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.title-bar {
+  width: 4px;
+  height: 20px;
+  background: #5B8FF9;
+  border-radius: 2px;
+  display: inline-block;
+}
+.card-title h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* ===== 查询行 ===== */
+.query-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.query-row label {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.query-row select,
+.query-row input {
+  padding: 10px 14px;
+  border: 1px solid #D9D9D9;
+  border-radius: 10px;
+  font-size: 15px;
+  min-width: 200px;
+  background: #fff;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.query-row select:focus,
+.query-row input:focus {
+  outline: none;
+  border-color: #5B8FF9;
+  box-shadow: 0 0 0 3px rgba(91,143,249,0.15);
+}
+
+/* ===== 按钮 ===== */
+.btn-blue {
+  padding: 10px 20px;
+  background: #5B8FF9;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 500;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+}
+.btn-blue:hover {
+  background: #4A7DE4;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(91,143,249,0.3);
+}
+.btn-blue:active {
+  transform: translateY(0);
+}
+
+/* ===== 输入框自动索引 ===== */
+.input-wrap { position: relative; display: inline-block; }
+#teacher-input { min-width: 200px; }
+.suggest-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #E8E8E8;
+  border-radius: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+  list-style: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 6px 0;
+}
+.suggest-list.show { display: block; }
+.suggest-list li {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background .15s;
+  border-radius: 6px;
+  margin: 0 6px;
+}
+.suggest-list li:hover,
+.suggest-list li.active {
+  background: #F0F5FF;
+  color: #5B8FF9;
+}
+.suggest-list li .hl { color: #FF4D4F; font-weight: 700; }
+.suggest-list .no-match {
+  color: #999;
+  cursor: default;
+  text-align: center;
+}
+.suggest-list .no-match:hover { background: transparent; color: #999; }
+
+/* ===================================================== */
+/* ==================== 课表表格核心 ==================== */
+/* ===================================================== */
+
+/* 表格容器：只有这里能横向滚动 */
+.result-card {
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 16px;
+}
+
+/* 表格：足够宽以容纳所有内容 */
+.schedule-table {
+  width: auto;
+  min-width: 850px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+/* 表头行 */
+.schedule-table thead tr {
+  height: 48px;
+}
+
+/* 所有单元格基础样式 */
+.schedule-table th,
+.schedule-table td {
+  border: 1px solid #E8E8E8;
+  padding: 8px 4px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* 表头单元格 */
+.schedule-table th {
+  background: linear-gradient(135deg, #5B8FF9 0%, #7AA6FF 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 12px;
+}
+
+/* 节次列 */
+.schedule-table .time-col {
+  background: #E8F4FF;
+  color: #3B6DB5;
+  font-weight: 700;
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  font-size: 14px;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 2px solid #D0E3FF;
+  padding: 8px 4px;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* 星期列 */
+.schedule-table .day-header {
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+}
+
+/* 数据行 */
+.schedule-table tbody tr {
+  height: 72px;
+}
+
+/* 数据单元格 */
+.schedule-table tbody td {
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+  padding: 6px 4px;
+}
+
+/* 空单元格 */
+.schedule-table td.empty {
+  color: #CCC;
+  background: #FAFBFC;
+  font-size: 14px;
+}
+
+/* 课程单元格：简洁上下两行 */
+.schedule-table .course-box {
+  background: #F0F7FF;
+  border-radius: 8px;
+  padding: 8px 6px;
+  margin: 2px 4px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.schedule-table .course-name {
+  font-weight: 700;
+  color: #2C4A7C;
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.schedule-table .course-meta {
+  color: #5B8FF9;
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* 悬停效果：仅变色，无阴影 */
+.schedule-table td:not(.empty):hover .course-box {
+  background: #E0EDFF;
+}
+.schedule-table tbody tr:hover {
+  background: #FAFBFC;
+}
+
+/* ===== 教师信息 ===== */
+.info-card {
+  background: linear-gradient(135deg, #F0F5FF 0%, #E6F7FF 100%);
+  border-left: 4px solid #5B8FF9;
+  padding: 16px 20px;
+}
+.info-card h3 {
+  color: #5B8FF9;
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+.info-card p { color: #666; font-size: 14px; }
+
+/* ===== 通讯录 ===== */
+.contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #FAFAFA;
+  border-radius: 10px;
+  border: 1px solid #F0F0F0;
+  transition: all .2s;
+}
+.contact-item:hover {
+  background: #F0F5FF;
+  border-color: #5B8FF9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91,143,249,0.1);
+}
+.contact-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 15px;
+}
+.contact-phone a {
+  color: #5B8FF9;
+  text-decoration: none;
+  font-family: "SF Mono", Consolas, monospace;
+  font-size: 14px;
+}
+.contact-phone a:hover { text-decoration: underline; }
+.no-result {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+  font-size: 15px;
+}
+
+/* ===== 底部管理后台 ===== */
+.bottom-admin {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px 16px;
+  text-align: center;
+}
+.btn-admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: #fff;
+  color: #5B8FF9;
+  border: 2px solid #5B8FF9;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all .25s;
+}
+.btn-admin:hover {
+  background: #5B8FF9;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(91,143,249,0.25);
+}
+.btn-admin:active {
+  transform: translateY(0);
+}
+.admin-icon { font-size: 18px; }
+.admin-text { font-size: 15px; }
+
+/* ===== 页脚 ===== */
+.page-footer {
+  text-align: center;
+  padding: 20px 16px;
+  color: #AAA;
+  font-size: 13px;
+}
+
+/* ===== 管理面板 ===== */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-box {
+  background: #FAFAFA;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  border: 1px solid #F0F0F0;
+}
+.stat-num {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #5B8FF9;
+}
+.stat-label {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ===================================================== */
+/* ==================== 移动端适配 ==================== */
+/* ===================================================== */
+@media (max-width: 768px) {
+  html { font-size: 15px; }
+
+  .header-inner {
+    padding: 0 12px;
+    height: 52px;
+  }
+  .logo-text { font-size: 15px; }
+  .nav-btn {
+    padding: 7px 12px;
+    font-size: 13px;
+    border-radius: 16px;
+    gap: 4px;
+  }
+  .nav-icon { font-size: 12px; }
+
+  .main-wrap { padding: 16px 12px 12px; }
+
+  .card {
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .card-title { margin-bottom: 14px; }
+  .card-title h2 { font-size: 16px; }
+
+  /* 查询行垂直排列 */
+  .query-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .query-row label {
+    font-size: 14px;
+    margin-bottom: -4px;
+  }
+  .query-row select,
+  .query-row input,
+  .input-wrap,
+  #teacher-input {
+    width: 100%;
+    min-width: auto;
+    font-size: 16px;
+  }
+  .btn-blue {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* 教师索引下拉适配 */
+  .suggest-list {
+    max-height: 220px;
+    border-radius: 10px;
+  }
+  .suggest-list li {
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  /* 课表表格横向滚动 */
+  .result-card {
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    margin: 0;
+  }
+  .schedule-table {
+    min-width: 850px;
+    font-size: 13px;
+  }
+  .schedule-table thead tr {
+    height: 44px;
+  }
+  .schedule-table th {
+    font-size: 14px;
+    height: 44px;
+    line-height: 44px;
+    padding: 0 10px;
+  }
+  .schedule-table .time-col {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+    font-size: 13px;
+    padding: 6px 2px;
+    white-space: nowrap;
+    overflow: visible;
+  }
+  .schedule-table .day-header {
+    width: 130px;
+    min-width: 130px;
+    max-width: 130px;
+  }
+  .schedule-table tbody tr {
+    height: 68px;
+  }
+  .schedule-table tbody td {
+    width: 130px;
+    min-width: 130px;
+    max-width: 130px;
+    padding: 5px 3px;
+  }
+  .schedule-table .course-box {
+    height: 52px;
+    padding: 6px 4px;
+    margin: 2px 3px;
+    gap: 3px;
+    border-radius: 6px;
+  }
+  .schedule-table .course-name {
+    font-size: 13px;
+  }
+  .schedule-table .course-meta {
+    font-size: 12px;
+  }
+
+  /* 教师信息卡片 */
+  .info-card {
+    padding: 14px 16px;
+  }
+  .info-card h3 { font-size: 16px; }
+
+  /* 通讯录单列 */
+  .contacts-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .contact-item {
+    padding: 12px 14px;
+  }
+  .contact-name { font-size: 15px; }
+  .contact-phone a { font-size: 14px; }
+
+  /* 底部管理后台 */
+  .bottom-admin {
+    padding: 0 12px 12px;
+  }
+  .btn-admin {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  /* 统计卡片 */
+  .stat-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .stat-box { padding: 12px; }
+  .stat-num { font-size: 20px; }
+  .stat-label { font-size: 11px; }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 400px) {
+  .logo-text { font-size: 14px; }
+  .nav-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .schedule-table {
+    min-width: 800px;
+    font-size: 12px;
+  }
+  .schedule-table thead tr {
+    height: 40px;
+  }
+  .schedule-table th {
+    font-size: 13px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 8px;
+  }
+  .schedule-table .time-col {
+    width: 86px;
+    min-width: 86px;
+    max-width: 86px;
+    font-size: 12px;
+    padding: 6px 2px;
+    white-space: nowrap;
+    overflow: visible;
+  }
+  .schedule-table .day-header {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+  }
+  .schedule-table tbody tr {
+    height: 64px;
+  }
+  .schedule-table tbody td {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+    padding: 4px 2px;
+  }
+  .schedule-table .course-box {
+    height: 48px;
+    padding: 5px 3px;
+    gap: 2px;
+  }
+  .schedule-table .course-name {
+    font-size: 12px;
+  }
+  .schedule-table .course-meta {
+    font-size: 11px;
+  }
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* ===== 终极修复：强制节次列完整显示 ===== */
+/* 针对所有屏幕，强制节次列样式，禁止任何截断 */
+.schedule-table .time-col {
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  font-size: 14px !important;
+  padding: 8px 4px !important;
+}
+
+/* 针对手机屏幕，稍微缩小但保证完整 */
+@media (max-width: 768px) {
+  .schedule-table .time-col {
+    width: 90px !important;
+    min-width: 90px !important;
+    max-width: 90px !important;
+    font-size: 13px !important;
+    padding: 6px 2px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .schedule-table .time-col {
+    width: 86px !important;
+    min-width: 86px !important;
+    max-width: 86px !important;
+    font-size: 12px !important;
+    padding: 6px 2px !important;
+  }
+}
+.time-col { width:120px !important; min-width:120px !important; font-size:16px !important; }

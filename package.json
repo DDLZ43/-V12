@@ -1,0 +1,16 @@
+{
+  "name": "schedule-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server --port=5500",
+    "watch": "chokidar \"**/*.{html,js,css}\" --ignore \"node_modules\" -c \"tcb hosting deploy . / --env-id school-class-d6gqfz22p3137279c\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chokidar-cli": "^3.0.0"
+  }
+}

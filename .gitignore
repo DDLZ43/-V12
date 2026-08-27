@@ -1,0 +1,16 @@
+# 依赖
+node_modules/
+
+# 备份文件（data.js 迁移时留的）
+js/*.old*.js
+js/*.old_data.js
+
+# 临时/日志
+*.log
+.DS_Store
+
+# 本地开发与旧部署配置（搬 GitHub Pages 后可不再需要）
+*cloudbaserc.json
+.tcbignore
+.wxcloud_*
+.env.local

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>白沙小学课表系统</title>
+<link rel="stylesheet" href="css/style.css">
+<base target="_blank">
+<style>
+/* ===== 强制覆盖：标题独占一行，导航在下方 ===== */
+.top-header {
+  display: block !important;
+}
+.header-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: auto !important;
+  padding: 15px 16px 10px !important;
+}
+.logo-area {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 12px !important;
+  gap: 10px !important;
+}
+.logo-icon {
+  font-size: 30px !important;
+}
+.logo-text {
+  font-size: 26px !important;
+  font-weight: bold !important;
+  color: #2c3e50 !important;
+  letter-spacing: 1px !important;
+}
+.top-nav {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+.nav-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 10px 20px !important;
+  border: none !important;
+  border-radius: 20px !important;
+  background: #F0F5FF !important;
+  color: #5B8FF9 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all .25s !important;
+  white-space: nowrap !important;
+}
+.nav-btn:hover {
+  background: #5B8FF9 !important;
+  color: #fff !important;
+  transform: translateY(-1px) !important;
+}
+.nav-btn.active {
+  background: #5B8FF9 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(91,143,249,0.35) !important;
+}
+
+/* 管理后台链接按钮样式统一 */
+.top-nav a.nav-btn {
+  text-decoration: none !important;
+  display: inline-flex !important;
+}
+.nav-icon {
+  font-size: 18px !important;
+}
+
+/* ===== 教师课表查询按钮下移 ===== */
+#panel-teacher .query-row {
+  position: relative !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+}
+#panel-teacher .input-wrap {
+  position: relative !important;
+  flex: 1 !important;
+  min-width: 200px !important;
+}
+#panel-teacher #teacher-input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+#panel-teacher #teacher-suggest {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 100 !important;
+  background: #fff !important;
+  border: 1px solid #ddd !important;
+  border-radius: 6px !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+  margin: 4px 0 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+#btn-teacher-query {
+  margin-top: 28px !important;
+  align-self: flex-start !important;
+}
+
+/* ===== 课表横向滚动 ===== */
+.schedule-table {
+  display: block !important;
+  overflow-x: auto !important;
+  white-space: nowrap !important;
+  -webkit-overflow-scrolling: touch !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+}
+.schedule-table table {
+  min-width: 600px !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+.schedule-table th,
+.schedule-table td {
+  white-space: nowrap !important;
+  padding: 10px 12px !important;
+  text-align: center !important;
+  border: 1px solid #e0e0e0 !important;
+  font-size: 14px !important;
+}
+.schedule-table td {
+  word-break: keep-all !important;
+}
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <span class="logo-icon">🏫</span>
+      <span class="logo-text">白沙小学课表系统</span>
+    </div>
+    <nav class="top-nav">
+      <button class="nav-btn active" data-tab="class">
+        <span class="nav-icon">📋</span>班级课表
+      </button>
+      <button class="nav-btn" data-tab="teacher">
+        <span class="nav-icon">👤</span>教师课表
+      </button>
+      <button class="nav-btn" data-tab="contacts">
+        <span class="nav-icon">📇</span>通讯录
+      </button>
+      <a href="admin.html" class="nav-btn" target="_self">
+        <span class="nav-icon">⚙️</span>管理后台
+      </a>
+    </nav>
+  </div>
+</header>
+
+<div class="main-wrap">
+
+  <!-- 班级课表 -->
+  <section id="panel-class" class="panel active">
+    <div class="card">
+      <div class="card-title">
+        <span class="title-bar"></span>
+        <h2>班级课表查询</h2>
+      </div>
+      <div class="query-row">
+        <label>选择班级：</label>
+        <select id="class-select">
+          <option value="">请选择班级</option>
+        </select>
+        <button id="btn-class-query" class="btn-blue">🔍 查询课表</button>
+      </div>
+    </div>
+    <div id="class-result" class="card result-card" style="display:none"></div>
+  </section>
+
+  <!-- 教师课表 -->
+  <section id="panel-teacher" class="panel">
+    <div class="card">
+      <div class="card-title">
+        <span class="title-bar"></span>
+        <h2>教师课表查询</h2>
+      </div>
+      <div class="query-row">
+        <label>教师姓名：</label>
+        <div class="input-wrap">
+          <input type="text" id="teacher-input" placeholder="请输入并选择教师姓名" autocomplete="off">
+          <ul id="teacher-suggest" class="suggest-list"></ul>
+        </div>
+        <button id="btn-teacher-query" class="btn-blue">🔍 查询课表</button>
+      </div>
+    </div>
+    <div id="teacher-info" class="card info-card" style="display:none"></div>
+    <div id="teacher-result" class="card result-card" style="display:none"></div>
+  </section>
+
+  <!-- 通讯录 -->
+  <section id="panel-contacts" class="panel">
+    <div class="card">
+      <div class="card-title">
+        <span class="title-bar"></span>
+        <h2>教师通讯录</h2>
+      </div>
+      <div class="query-row">
+        <label>搜索教师：</label>
+        <input type="text" id="contact-input" placeholder="输入姓名搜索...">
+      </div>
+    </div>
+    <div id="contacts-result" class="card"></div>
+  </section>
+
+</div>
+
+
+
+<footer class="page-footer">
+  <p>白沙小学课表系统 · 简约清新版</p>
+</footer>
+
+<script src="js/data-loader.js"></script>
+<script src="js/app.js"></script>
+<script>
+/* ===== 兜底排序：确保班级下拉框顺序绝对正确 ===== */
+(function() {
+    var select = document.getElementById('class-select');
+    if (!select) return;
+    function doSort() {
+        var opts = Array.from(select.options);
+        var placeholder = opts.shift(); // 保留"请选择班级"
+        var gradeOrder = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6 };
+        opts.sort(function(a, b) {
+            var gA = gradeOrder[a.value.charAt(0)] || 0;
+            var gB = gradeOrder[b.value.charAt(0)] || 0;
+            if (gA !== gB) return gA - gB;
+            var mA = a.value.match(/\d+/);
+            var mB = b.value.match(/\d+/);
+            var nA = mA ? parseInt(mA[0], 10) : 0;
+            var nB = mB ? parseInt(mB[0], 10) : 0;
+            return nA - nB;
+        });
+        select.innerHTML = '';
+        select.appendChild(placeholder);
+        opts.forEach(function(o) { select.appendChild(o); });
+    }
+    // DOM 就绪后执行，如果 app.js 已经填充了选项
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        doSort();
+    } else {
+        document.addEventListener('DOMContentLoaded', doSort);
+    }
+})();
+</script>
+</body>
+</html>

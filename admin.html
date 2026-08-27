@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 - 白沙小学课表系统</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.admin-wrap { max-width: 900px; margin: 20px auto; padding: 20px; }
+.back-link { display: inline-block; margin-bottom: 20px; color: #5B8FF9; text-decoration: none; font-weight: 500; }
+.back-link:hover { text-decoration: underline; }
+
+/* 转换工具样式 */
+.tool-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.tool-card h3 { font-size: 16px; color: #5B8FF9; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.tool-card h3::before { content: "📋"; }
+.tool-textarea { width: 100%; min-height: 220px; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; font-family: monospace; resize: vertical; outline: none; }
+.tool-textarea:focus { border-color: #5B8FF9; }
+.tool-btn { width: 100%; padding: 14px; background: #5B8FF9; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px; }
+.tool-btn:hover { background: #4a7de8; }
+.tool-btn:active { transform: scale(0.98); }
+.tool-btn-secondary { background: #f5f5f5; color: #333; margin-top: 8px; }
+.tool-btn-secondary:hover { background: #e8e8e8; }
+.tool-btn-success { background: #52c41a; }
+.tool-btn-success:hover { background: #45a317; }
+#outputArea { display: none; }
+#jsOutput { width: 100%; min-height: 200px; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 12px; font-family: monospace; background: #fafafa; resize: vertical; }
+.preview-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+.preview-table th { background: #5B8FF9; color: white; padding: 6px; text-align: left; font-weight: 600; }
+.preview-table td { border: 1px solid #eee; padding: 6px; }
+.preview-table tr:nth-child(even) { background: #f8f9fa; }
+.stats { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.stat-item { background: #e6f7ff; color: #096dd9; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+.hint { background: #f6f8ff; border-left: 4px solid #5B8FF9; padding: 12px 16px; margin-bottom: 16px; border-radius: 0 8px 8px 0; font-size: 13px; color: #555; line-height: 1.6; }
+.hint strong { color: #5B8FF9; }
+.hint code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+#copyHint { color: #52c41a; font-size: 13px; margin-top: 8px; text-align: center; display: none; }
+.preview-wrap { max-height: 300px; overflow: auto; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 12px; }
+.alert { padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
+.alert-info { background: #e6f7ff; border: 1px solid #91d5ff; color: #096dd9; }
+.alert-err { background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; }
+.btn-row { display: flex; gap: 10px; margin-top: 12px; }
+.btn-row .tool-btn { flex: 1; margin-top: 0; }
+label { display: block; font-size: 14px; color: #555; margin-bottom: 6px; margin-top: 12px; }
+label:first-of-type { margin-top: 0; }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <span class="logo-icon">🏫</span>
+      <span class="logo-text">白沙小学课表系统</span>
+    </div>
+    <nav class="top-nav">
+      <a href="index.html" class="nav-btn">
+        <span class="nav-icon">📋</span>班级课表
+      </a>
+      <a href="index.html" class="nav-btn">
+        <span class="nav-icon">👤</span>教师课表
+      </a>
+      <a href="index.html" class="nav-btn">
+        <span class="nav-icon">📇</span>通讯录
+      </a>
+      <a href="admin.html" class="nav-btn active">
+        <span class="nav-icon">⚙️</span>管理后台
+      </a>
+    </nav>
+  </div>
+</header>
+
+<div class="admin-wrap">
+
+  <!-- 数据管理 -->
+  <div class="card">
+    <div class="card-title">
+      <span class="title-bar"></span>
+      <h2>数据管理</h2>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box"><span class="stat-num" id="stat-class">0</span><span class="stat-label">班级</span></div>
+      <div class="stat-box"><span class="stat-num" id="stat-teacher">0</span><span class="stat-label">教师</span></div>
+      <div class="stat-box"><span class="stat-num" id="stat-contact">0</span><span class="stat-label">通讯录</span></div>
+    </div>
+  </div>
+
+  <!-- 转换工具 -->
+  <div class="tool-card">
+    <h3>课表数据转换工具</h3>
+    <div class="hint">
+      <strong>使用步骤：</strong><br>
+      1. 在 Excel 中选中整个课表区域（<strong>包含第1行星期、第2行节次、所有班级课程和教师行</strong>），按 Ctrl+C 复制<br>
+      2. 粘贴到下方文本框中<br>
+      3. 点击"生成数据"，预览确认后下载 data.json 文件<br>
+      4. 将下载的 data.json 放到项目 js/ 目录下替换原文件<br>
+      <br>
+      <strong>说明：</strong>转换会自动把新课表的教师，与当前已有的通讯录电话合并，<strong>原有电话不会丢失</strong>；班主任判断等逻辑保持原样。
+    </div>
+    <label>粘贴 Excel 数据</label>
+    <textarea id="inputData" class="tool-textarea" placeholder="请从 Excel 复制课表数据后粘贴到这里...
+
+格式要求：
+第1行：星期行（星期  星期一  星期一  ...  星期五）
+第2行：节次行（班级  1  2  3  4  午休  5  6  1  2...）
+第3行起：每两行一个班级，第一行课程名，第二行教师名"></textarea>
+    <button class="tool-btn" onclick="generateData()">🚀 生成 data.json</button>
+  </div>
+
+  <div id="outputArea" class="tool-card">
+    <h3>预览与下载</h3>
+    <div id="resultAlert"></div>
+    <div class="stats" id="statsArea"></div>
+    <div class="preview-wrap">
+      <table class="preview-table" id="previewTable">
+        <thead><tr><th>班级</th><th>星期</th><th>节次</th><th>课程</th><th>教师</th></tr></thead>
+        <tbody id="previewBody"></tbody>
+      </table>
+    </div>
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="tool-btn tool-btn-success" onclick="downloadData()">📥 下载 data.json</button>
+      <button class="tool-btn tool-btn-secondary" onclick="copyData()">📋 复制到剪贴板</button>
+    </div>
+    <p id="copyHint">✅ 已复制到剪贴板！</p>
+    <label style="margin-top:16px;">生成的 data.json（可直接替换 js/data.json）：</label>
+    <textarea id="jsOutput" readonly></textarea>
+  </div>
+
+</div>
+
+<footer class="page-footer">
+  <p>白沙小学课表系统 · 简约清新版</p>
+</footer>
+
+<script src="js/data-loader.js"></script>
+<script>
+// ==================== 统计数字更新 ====================
+function updateStats() {
+  try {
+    var classCount = 0, teacherCount = 0, contactCount = 0;
+
+    if (typeof scheduleData !== 'undefined' && scheduleData) {
+      classCount = Object.keys(scheduleData).length;
+    }
+
+    if (typeof getAllTeachers === 'function') {
+      teacherCount = getAllTeachers().length;
+    } else if (typeof SCHEDULE_DATA !== 'undefined' && SCHEDULE_DATA) {
+      var ts = new Set();
+      for (var i = 0; i < SCHEDULE_DATA.length; i++) {
+        if (SCHEDULE_DATA[i].teacher) ts.add(SCHEDULE_DATA[i].teacher);
+      }
+      teacherCount = ts.size;
+    }
+
+    if (typeof contactsData !== 'undefined' && contactsData) {
+      contactCount = contactsData.length;
+    } else if (typeof CONTACTS_DATA !== 'undefined' && CONTACTS_DATA) {
+      contactCount = CONTACTS_DATA.length;
+    }
+
+    document.getElementById('stat-class').textContent = classCount;
+    document.getElementById('stat-teacher').textContent = teacherCount;
+    document.getElementById('stat-contact').textContent = contactCount;
+  } catch (e) {
+    console.error('统计更新失败:', e);
+  }
+}
+// 数据就绪后统计（数据由 data-loader.js 异步加载）
+__whenDataReady__(updateStats);
+
+// ==================== 转换工具逻辑（生成 data.json） ====================
+var generatedJSON = null;
+var generatedJSText = '';
+var scheduleDataLocal = {};
+
+function parseTSV(text) {
+  return text.trim().split('\n').map(function(line) { return line.split('\t'); });
+}
+
+function generateData() {
+  var raw = document.getElementById('inputData').value.trim();
+  if (!raw) { alert('请先粘贴 Excel 数据'); return; }
+
+  var rows = parseTSV(raw);
+  if (rows.length < 3) { alert('数据行数不足，请检查是否包含表头和数据'); return; }
+
+  try {
+    scheduleDataLocal = {};
+
+    var weekRow = rows[0];
+    var periodRow = rows[1];
+
+    var colMap = [];
+    for (var i = 1; i < weekRow.length; i++) {
+      var week = String(weekRow[i] || '').trim();
+      var period = String(periodRow[i] || '').trim();
+      if (period === '午休' || period === 'nan' || period === '') continue;
+      if (['1','2','3','4','5','6'].indexOf(period) !== -1 &&
+          ['星期一','星期二','星期三','星期四','星期五'].indexOf(week) !== -1) {
+        colMap.push({ col: i, week: week, period: parseInt(period) });
+      }
+    }
+
+    if (colMap.length === 0) {
+      showAlert('err', '未能识别到课表列，请检查第1行是否为星期、第2行是否为节次（1-6）');
+      return;
+    }
+
+    var rowIdx = 2;
+    var classPattern = /^[一二三四五六]\d+$/;
+
+    while (rowIdx < rows.length) {
+      var classRow = rows[rowIdx];
+      if (!classRow || classRow.length === 0) { rowIdx++; continue; }
+
+      var className = String(classRow[0] || '').trim();
+      if (!classPattern.test(className)) { rowIdx++; continue; }
+
+      if (rowIdx + 1 >= rows.length) break;
+      var teacherRow = rows[rowIdx + 1];
+
+      if (!scheduleDataLocal[className]) scheduleDataLocal[className] = {};
+
+      for (var m = 0; m < colMap.length; m++) {
+        var mapping = colMap[m];
+        var col = mapping.col;
+        var week = mapping.week;
+        var period = mapping.period;
+
+        var course = String(classRow[col] || '').trim();
+        var teacher = String(teacherRow[col] || '').trim();
+
+        if (!course || course === 'nan' || course === '' ||
+            !teacher || teacher === 'nan' || teacher === '') continue;
+
+        if (!scheduleDataLocal[className][week]) scheduleDataLocal[className][week] = {};
+        scheduleDataLocal[className][week][period] = {
+          course: course,
+          teacher: teacher,
+          room: '-'
+        };
+      }
+
+      rowIdx += 2;
+    }
+
+    var classCount = Object.keys(scheduleDataLocal).length;
+    if (classCount === 0) {
+      showAlert('err', '未能解析到任何班级数据，请检查班级名格式（如"一1"、"二2"等）');
+      return;
+    }
+
+    var scheduleArray = [];
+    var teacherSet = new Set();
+    for (var cls in scheduleDataLocal) {
+      for (var wk in scheduleDataLocal[cls]) {
+        for (var prd in scheduleDataLocal[cls][wk]) {
+          var item = scheduleDataLocal[cls][wk][prd];
+          teacherSet.add(item.teacher);
+          scheduleArray.push({
+            key: item.teacher + wk + prd,
+            teacher: item.teacher,
+            week: wk,
+            period: prd,
+            course: item.course,
+            className: cls
+          });
+        }
+      }
+    }
+
+    // ===== 生成通讯录：与已有通讯录合并，保留电话 =====
+    var oldContacts = (typeof contactsData !== 'undefined' && contactsData) ? contactsData : [];
+    var phoneMap = {};
+    for (var c = 0; c < oldContacts.length; c++) {
+      if (oldContacts[c] && oldContacts[c].name) phoneMap[oldContacts[c].name] = oldContacts[c].phone || '';
+    }
+    var teacherNames = Array.from(teacherSet).sort(function(a, b) { return a.localeCompare(b, 'zh-CN'); });
+    var contactsArr = teacherNames.map(function(name) {
+      return { name: name, phone: phoneMap[name] || '', note: '' };
+    });
+
+    // ===== 组装 data.json =====
+    generatedJSON = {
+      scheduleData: scheduleDataLocal,
+      contactsData: contactsArr,
+      periods: [1, 2, 3, 4, 5, 6],
+      days: ["星期一", "星期二", "星期三", "星期四", "星期五"]
+    };
+    generatedJSText = JSON.stringify(generatedJSON, null, 2);
+
+    showResult(classCount, scheduleArray.length, teacherSet.size);
+  } catch (err) {
+    console.error(err);
+    showAlert('err', '转换出错：' + err.message);
+  }
+}
+
+function showAlert(type, msg) {
+  var alertBox = document.getElementById('resultAlert');
+  var typeClass = type === 'err' ? 'alert-err' : 'alert-info';
+  alertBox.innerHTML = '<div class="alert ' + typeClass + '">' + msg + '</div>';
+}
+
+function showResult(classCount, recordCount, teacherCount) {
+  document.getElementById('outputArea').style.display = 'block';
+  showAlert('info', '✅ 转换成功！共 ' + classCount + ' 个班级，' + recordCount + ' 条课表记录。');
+
+  document.getElementById('statsArea').innerHTML =
+    '<span class="stat-item">总课节: ' + recordCount + '</span>' +
+    '<span class="stat-item">班级: ' + classCount + '</span>' +
+    '<span class="stat-item">教师: ' + teacherCount + '</span>';
+
+  var tbody = document.getElementById('previewBody');
+  tbody.innerHTML = '';
+  var count = 0;
+  for (var cls in scheduleDataLocal) {
+    for (var wk in scheduleDataLocal[cls]) {
+      for (var prd in scheduleDataLocal[cls][wk]) {
+        if (count >= 50) break;
+        var item = scheduleDataLocal[cls][wk][prd];
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + cls + '</td><td>' + wk + '</td><td>第' + prd + '节</td><td>' + item.course + '</td><td>' + item.teacher + '</td>';
+        tbody.appendChild(tr);
+        count++;
+      }
+      if (count >= 50) break;
+    }
+    if (count >= 50) break;
+  }
+  if (recordCount > 50) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="5" style="text-align:center;color:#999;">... 还有 ' + (recordCount - 50) + ' 条记录 ...</td>';
+    tbody.appendChild(tr);
+  }
+
+  document.getElementById('jsOutput').value = generatedJSText;
+  document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth' });
+}
+
+function downloadData() {
+  if (!generatedJSText) { alert('请先生成数据'); return; }
+  var blob = new Blob([generatedJSText], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'data.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  // 提示
+  alert('已下载 data.json，请用新文件替换 js/ 目录下的 data.json');
+}
+
+function copyData() {
+  if (!generatedJSText) { alert('请先生成数据'); return; }
+  var el = document.getElementById('jsOutput');
+  el.select();
+  document.execCommand('copy');
+  document.getElementById('copyHint').style.display = 'block';
+  setTimeout(function() { document.getElementById('copyHint').style.display = 'none'; }, 3000);
+}
+</script>
+</body>
+</html>
