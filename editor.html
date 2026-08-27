@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课表编辑器 - 白沙小学课表系统</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.editor-wrap { max-width: 1000px; margin: 20px auto; padding: 20px; }
+.editor-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.editor-bar label { font-size: 14px; color: #555; margin: 0; }
+.editor-bar select { padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px; outline: none; }
+.editor-bar select:focus { border-color: #5B8FF9; }
+.editor-bar .btn { padding: 8px 16px; border: none; border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; }
+.btn-save { background: #52c41a; }
+.btn-add { background: #5B8FF9; }
+.btn-export { background: #fa8c16; }
+.ecard { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 20px; margin-bottom: 16px; }
+.ecard h3 { font-size: 16px; color: #5B8FF9; margin-bottom: 12px; }
+.editor-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.editor-table th { background: #5B8FF9; color: #fff; padding: 8px; border: 1px solid #eaeaea; }
+.editor-table td { border: 1px solid #eee; padding: 0; text-align: center; position: relative; }
+.cell-input { width: 100%; box-sizing: border-box; border: 1px solid transparent; text-align: center; padding: 8px 4px; font-size: 13px; outline: none; background: transparent; }
+.cell-input:focus { border-color: #5B8FF9; background: #f0f6ff; }
+.cell-input.course { font-weight: 600; color: #333; }
+.cell-input.teacher { border-top: 1px dashed #eef; }
+.time-col { width: 50px; background: #fafafa; font-weight: 600; color: #666; }
+.empty-cell { color: #bbb; height: 100%; }
+.contacts-box { font-size: 13px; }
+.contacts-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+.contacts-row input { flex: 0 0 auto; }
+.contacts-row input[data-field=name] { width: 120px; }
+.contacts-row input[data-field=phone] { width: 140px; }
+.contacts-row span { color: #999; font-size: 12px; }
+.hint-line { background: #f6f8ff; border-left: 4px solid #5B8FF9; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 16px; font-size: 13px; color: #555; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <span class="logo-icon">🏫</span>
+      <span class="logo-text">白沙小学课表系统 · 编辑器</span>
+    </div>
+    <nav class="top-nav">
+      <a href="index.html" class="nav-btn"><span class="nav-icon">📋</span>查看课表</a>
+      <a href="editor.html" class="nav-btn active"><span class="nav-icon">✏️</span>编辑器</a>
+      <a href="admin.html" class="nav-btn"><span class="nav-icon">📥</span>Excel导入</a>
+    </nav>
+  </div>
+</header>
+
+<div class="editor-wrap">
+  <div class="hint-line">
+    用法：<b>选班级</b> → 表格里直接点格子<b>改课程/教师</b>，改完点 <b>保存并导出 data.json</b>，用下载的文件替换 <code>js/data.json</code> 即可上线。<br>
+    新增格子：某节原本空白，直接在对应格输入内容，保存后就有这一节了。<br>
+    下图横的是<b>星期</b>，竖的是<b>节次</b>。教室/课程旁可加备注。
+  </div>
+
+  <div class="editor-bar">
+    <label>选班级</label>
+    <select id="classSelect"></select>
+    <button class="btn btn-save" id="btnSave">💾 保存并导出 data.json</button>
+    <button class="btn btn-add" id="btnMissing">❓ 这节课没显示？</button>
+  </div>
+
+  <div class="ecard">
+    <h3 id="currentClassTitle">请选择班级</h3>
+    <div id="tableWrap">请先在上方选择班级</div>
+  </div>
+
+  <div class="ecard">
+    <h3>教师通讯录（改电话请在这里）</h3>
+    <div class="contacts-box" id="contactsBox"></div>
+  </div>
+</div>
+
+<footer class="page-footer">
+  <p>白沙小学课表系统 · 简约清新版（编辑器）</p>
+</footer>
+
+<script src="js/data-loader.js"></script>
+<script>
+// 当前编辑的班级
+var currentClass = '';
+var DAYS = ['星期一','星期二','星期三','星期四','星期五'];
+var PERIODS = [1,2,3,4,5,6];
+
+var classSelect = document.getElementById('classSelect');
+var tableWrap = document.getElementById('tableWrap');
+var titleEl = document.getElementById('currentClassTitle');
+
+function fillClassSelect() {
+  var classes = Object.keys(scheduleData).sort(function(a,b){
+    var gO = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6};
+    var gA=gO[a.charAt(0)]||0, gB=gO[b.charAt(0)]||0;
+    if(gA!==gB) return gA-gB;
+    var m1=a.match(/[0-9]+/), m2=b.match(/[0-9]+/);
+    return ((m1?+m1[0]:0)-(m2?+m2[0]:0));
+  });
+  classSelect.innerHTML = '';
+  classes.forEach(function(c){
+    var o=document.createElement('option');
+    o.value=c; o.textContent=c+"班";
+    classSelect.appendChild(o);
+  });
+  if(classes.length) { currentClass=classes[0]; classSelect.value=classes[0]; }
+}
+
+function renderClassTable() {
+  var cls = currentClass;
+  if(!cls){ tableWrap.innerHTML='请选择班级'; return; }
+  titleEl.textContent = cls + '班  课表（点格子可直接修改）';
+  var data = scheduleData[cls] || {};
+  var html = '<table class="editor-table"><thead><tr><th>节次</th>';
+  DAYS.forEach(function(d){ html += '<th>'+d+'</th>'; });
+  html += '</tr></thead><tbody>';
+  PERIODS.forEach(function(p){
+    html += '<tr><td class="time-col">第'+p+'节</td>';
+    DAYS.forEach(function(d){
+      var cell = data[d] && data[d][p] ? data[d][p] : null;
+      var course = cell ? cell.course : '';
+      var teacher = cell ? cell.teacher : '';
+      html += '<td><input class="cell-input course" data-class="'+cls+'" data-day="'+d+'" data-period="'+p+'" data-field="course" value="'+esc(course)+'">'+
+              '<input class="cell-input teacher" data-class="'+cls+'" data-day="'+d+'" data-period="'+p+'" data-field="teacher" value="'+esc(teacher)+'"></td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  tableWrap.innerHTML = html;
+}
+
+function esc(s){ return String(s||'').replace(/"/g,'&quot;').replace(/&/g,'&amp;'); }
+
+function renderContacts() {
+  var box = document.getElementById('contactsBox');
+  var list = contactsData || [];
+  var html = '';
+  for(var i=0;i<list.length;i++){
+    var c=list[i];
+    html += '<div class="contacts-row">'+
+            '<input data-idx="'+i+'" data-field="name" value="'+esc(c.name)+'">'+
+            '<input data-idx="'+i+'" data-field="phone" value="'+esc(c.phone||'')+'">'+
+            '</div>';
+  }
+  box.innerHTML = html;
+  // 绑定通讯录输入
+  box.querySelectorAll('input').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var idx = +this.getAttribute('data-idx');
+      var field = this.getAttribute('data-field');
+      if(contactsData[idx]) contactsData[idx][field] = this.value;
+    });
+  });
+}
+
+// 课表格子输入时同步到 scheduleData
+function bindTableInputs() {
+  tableWrap.querySelectorAll('.cell-input').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var cls = this.getAttribute('data-class');
+      var day = this.getAttribute('data-day');
+      var p = this.getAttribute('data-period');
+      var field = this.getAttribute('data-field');
+      if(!scheduleData[cls]) scheduleData[cls]={};
+      if(!scheduleData[cls][day]) scheduleData[cls][day]={};
+      if(!scheduleData[cls][day][p]) scheduleData[cls][day][p]={course:'',teacher:'',room:'-'};
+      scheduleData[cls][day][p][field] = this.value;
+    });
+  });
+}
+
+classSelect.addEventListener('change', function(){
+  currentClass = this.value;
+  renderClassTable();
+  bindTableInputs();
+});
+
+document.getElementById('btnSave').addEventListener('click', function(){
+  var out = {
+    scheduleData: scheduleData,
+    contactsData: contactsData,
+    periods: PERIODS,
+    days: DAYS
+  };
+  var text = JSON.stringify(out, null, 2);
+  var blob = new Blob([text], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='data.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  alert('已导出 data.json！\n用这个文件替换网站 js/ 目录下的 data.json 即可。');
+});
+
+document.getElementById('btnMissing').addEventListener('click', function(){
+  alert('提示：表格里已经包含全部 6 节 × 5 天。如果某个班级这节课没人教，留空即可（保存后就是空白节）。\n如果某个班级应该超过6节（个别班有第7节），请告诉我，我帮你加上。');
+});
+
+// 数据就绪后初始化
+__whenDataReady__(function(){
+  fillClassSelect();
+  renderClassTable();
+  bindTableInputs();
+  renderContacts();
+});
+</script>
+</body>
+</html>
