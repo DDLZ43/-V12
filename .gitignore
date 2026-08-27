@@ -14,3 +14,9 @@ js/*.old_data.js
 .tcbignore
 .wxcloud_*
 .env.local
+
+# 令牌/密钥文件（严禁上传）
+github令牌.txt
+*.token
+*.secret
+
