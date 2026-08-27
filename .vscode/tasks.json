@@ -11,9 +11,6 @@
         "reveal": "always",
         "focus": false,
         "panel": "shared"
-      },
-      "runOptions": {
-        "runOn": "folderOpen"
       }
     }
   ]
