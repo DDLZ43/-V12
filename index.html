@@ -77,7 +77,7 @@
   font-size: 18px !important;
 }
 
-/* ===== 教师课表查询按钮下移 ===== */
+/* ===== 个人课表查询按钮下移 ===== */
 #panel-teacher .query-row {
   position: relative !important;
   display: flex !important;
@@ -157,7 +157,7 @@
         <span class="nav-icon">📋</span>班级课表
       </button>
       <button class="nav-btn" data-tab="teacher">
-        <span class="nav-icon">👤</span>教师课表
+        <span class="nav-icon">👤</span>个人课表
       </button>
       <button class="nav-btn" data-tab="contacts">
         <span class="nav-icon">📇</span>通讯录
@@ -189,15 +189,15 @@
     <div id="class-result" class="card result-card" style="display:none"></div>
   </section>
 
-  <!-- 教师课表 -->
+  <!-- 个人课表 -->
   <section id="panel-teacher" class="panel">
     <div class="card">
       <div class="card-title">
         <span class="title-bar"></span>
-        <h2>教师课表查询</h2>
+        <h2>个人课表查询</h2>
       </div>
       <div class="query-row">
-        <label>教师姓名：</label>
+        <label>个人姓名：</label>
         <div class="input-wrap">
           <input type="text" id="teacher-input" placeholder="请输入并选择教师姓名" autocomplete="off">
           <ul id="teacher-suggest" class="suggest-list"></ul>
