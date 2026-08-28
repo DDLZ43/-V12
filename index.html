@@ -140,6 +140,83 @@
 .schedule-table td {
   word-break: keep-all !important;
 }
+
+/* ===== 班级课表 / 个人课表：滚动表格框对齐编辑器样式（更紧凑） ===== */
+#class-result .schedule-table,
+#teacher-result .schedule-table {
+  display: block !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+#class-result .schedule-table table,
+#teacher-result .schedule-table table {
+  min-width: 620px !important;
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+#class-result .schedule-table thead tr,
+#teacher-result .schedule-table thead tr { height: 36px !important; }
+#class-result .schedule-table th,
+#class-result .schedule-table td,
+#teacher-result .schedule-table th,
+#teacher-result .schedule-table td {
+  white-space: nowrap !important;
+  padding: 6px 3px !important;
+  font-size: 13px !important;
+  border: 1px solid #E8E8E8 !important;
+}
+#class-result .schedule-table tbody tr,
+#teacher-result .schedule-table tbody tr { height: 58px !important; }
+#class-result .schedule-table tbody td,
+#teacher-result .schedule-table tbody td {
+  width: 116px !important;
+  min-width: 116px !important;
+  max-width: 116px !important;
+  padding: 4px 3px !important;
+}
+#class-result .schedule-table .day-header,
+#teacher-result .schedule-table .day-header {
+  width: 116px !important;
+  min-width: 116px !important;
+  max-width: 116px !important;
+}
+#class-result .schedule-table .time-col,
+#teacher-result .schedule-table .time-col {
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 2px solid #D0E3FF;
+}
+#class-result .schedule-table .course-box,
+#teacher-result .schedule-table .course-box {
+  height: 46px !important;
+  padding: 3px 3px !important;
+  gap: 1px !important;
+}
+/* 移动端进一步紧凑 */
+@media (max-width: 768px) {
+  #class-result .schedule-table table,
+  #teacher-result .schedule-table table { min-width: 520px !important; }
+  #class-result .schedule-table thead tr,
+  #teacher-result .schedule-table thead tr { height: 34px !important; }
+  #class-result .schedule-table tbody tr,
+  #teacher-result .schedule-table tbody tr { height: 52px !important; }
+  #class-result .schedule-table tbody td,
+  #teacher-result .schedule-table tbody td,
+  #class-result .schedule-table .day-header,
+  #teacher-result .schedule-table .day-header {
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    padding: 3px 2px !important;
+  }
+  #class-result .schedule-table .course-box,
+  #teacher-result .schedule-table .course-box { height: 42px !important; }
+}
 </style>
 <base target="_blank">
 <base target="_blank">

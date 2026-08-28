@@ -256,7 +256,7 @@ function initContacts() {
         return;
     }
 
-    var CONTACT_PAGE_SIZE = 10; // 默认只展示前 10 条
+    var CONTACT_PAGE_SIZE = 5; // 默认只展示前 5 条
     var contactShowAll = false;
 
     function render(list) {
