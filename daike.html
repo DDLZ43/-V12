@@ -155,7 +155,19 @@ body {
   .query-row input, .input-wrap, .date-input { width:100%; min-width:auto; font-size:16px; }
   .btn-blue, .btn-green, .btn-orange { width:100%; }
 }
+
+/* auto=1 进入时(从"返回代课"跳转)隐藏口令锁，避免闪现 */
+.auto-unlock #lockScreen { display:none !important; }
 </style>
+
+<script>
+// 从编辑器"返回代课"进入时(?auto=1)，首屏即隐藏口令锁，避免闪现
+(function(){
+  if (/[?&]auto=1([&#]|$)/.test(window.location.search)) {
+    document.documentElement.className += ' auto-unlock';
+  }
+})();
+</script>
 </head>
 <body>
 
