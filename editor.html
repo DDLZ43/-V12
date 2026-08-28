@@ -23,7 +23,7 @@
 .editor-table thead tr { height: 36px; }
 .editor-table th, .editor-table td { border: 1px solid #E8E8E8; padding: 6px 3px; text-align: center; vertical-align: middle; white-space: nowrap; }
 .editor-table th { background: linear-gradient(135deg, #5B8FF9 0%, #7AA6FF 100%); color: #fff; font-weight: 600; font-size: 14px; height: 36px; padding: 0 8px; }
-.editor-table .time-col { background: #E8F4FF; color: #3B6DB5; font-weight: 700; width: 36px; min-width: 36px; max-width: 36px; font-size: 13px; position: sticky; left: 0; z-index: 10; border-right: 2px solid #D0E3FF; padding: 6px 2px; }
+.editor-table .time-col { background: #E8F4FF; color: #3B6DB5; font-weight: 700; width: 26px !important; min-width: 26px !important; max-width: 26px !important; font-size: 13px; position: sticky; left: 0; z-index: 10; border-right: 2px solid #D0E3FF; padding: 6px 2px; }
 .editor-table .day-header { width: 116px; min-width: 116px; max-width: 116px; }
 .editor-table tbody tr { height: 58px; }
 .editor-table tbody td { width: 116px; min-width: 116px; max-width: 116px; padding: 4px 3px; }
@@ -39,6 +39,23 @@
 .editor-table tbody tr:hover { background: #FAFBFC; }
 
 /* ===== 教师通讯录：卡片网格（仿 index.html 通讯录卡片样式） ===== */
+.contacts-search { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.contacts-search .search-icon { font-size: 15px; color: #999; }
+.contacts-search input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid #D9D9D9;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  transition: border-color .2s, box-shadow .2s;
+}
+.contacts-search input:focus { border-color: #5B8FF9; box-shadow: 0 0 0 3px rgba(91,143,249,0.15); }
+.contacts-search .btn-clear { background: #ff4d4f; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
+.contacts-search .btn-clear:hover { background: #e64545; }
+.contact-count { font-size: 13px; color: #999; margin-bottom: 10px; }
+.contact-count b { color: #5B8FF9; }
 .contacts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 .contact-edit-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; background: #FAFAFA; border-radius: 10px; border: 1px solid #F0F0F0; transition: all .2s; }
 .contact-edit-card:hover { background: #F0F5FF; border-color: #5B8FF9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(91,143,249,0.1); }
@@ -52,7 +69,7 @@
 @media (max-width: 768px) {
   .editor-table { min-width: 520px; font-size: 12px; }
   .editor-table th { font-size: 13px; height: 34px; padding: 0 6px; }
-  .editor-table .time-col { width: 20px; min-width: 20px; max-width: 20px; font-size: 12px; padding: 4px 2px; }
+  .editor-table .time-col { width: 26px !important; min-width: 26px !important; max-width: 26px !important; font-size: 12px; padding: 4px 2px; }
   .editor-table .day-header { width: 96px; min-width: 96px; max-width: 96px; }
   .editor-table tbody tr { height: 52px; }
   .editor-table tbody td { width: 96px; min-width: 96px; max-width: 96px; padding: 3px 2px; }
@@ -102,6 +119,12 @@
 
   <div class="ecard">
     <h3>教师通讯录（可以修改号码）</h3>
+    <div class="contacts-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="contactSearch" placeholder="输入教师姓名搜索，如：张三" autocomplete="off">
+      <button class="btn btn-clear" id="btnClearSearch">✕ 清空</button>
+    </div>
+    <div id="contactCount" class="contact-count"></div>
     <div class="contacts-box" id="contactsBox"></div>
   </div>
 </div>
@@ -166,27 +189,108 @@ function renderClassTable() {
 
 function esc(s){ return String(s||'').replace(/"/g,'&quot;').replace(/&/g,'&amp;'); }
 
+var contactKeyword = '';
+var contactShowAll = false;
+var CONTACT_PAGE_SIZE = 10; // 默认只展示前 10 条
+
 function renderContacts() {
   var box = document.getElementById('contactsBox');
+  var countEl = document.getElementById('contactCount');
   var list = contactsData || [];
+
+  // 关键词过滤
+  var filtered = [];
+  var kw = (contactKeyword || '').trim().toLowerCase();
+  if (kw) {
+    for (var i = 0; i < list.length; i++) {
+      var nm = (list[i].name || '').toLowerCase();
+      var ph = (list[i].phone || '').toLowerCase();
+      if (nm.indexOf(kw) !== -1 || ph.indexOf(kw) !== -1) {
+        filtered.push({ index: i, item: list[i] });
+      }
+    }
+  } else {
+    for (var i = 0; i < list.length; i++) {
+      filtered.push({ index: i, item: list[i] });
+    }
+  }
+
+  // 未搜索时只展示前 N 条
+  var shown = filtered;
+  if (!kw && !contactShowAll && filtered.length > CONTACT_PAGE_SIZE) {
+    shown = filtered.slice(0, CONTACT_PAGE_SIZE);
+  }
+
+  if (!shown.length) {
+    box.innerHTML = '<p class="no-result">未找到匹配的教师，请换关键词重试</p>';
+    if (countEl) countEl.innerHTML = '共 0 条';
+    return;
+  }
+
   var html = '<div class="contacts-grid">';
-  for(var i=0;i<list.length;i++){
-    var c=list[i];
+  for (var k = 0; k < shown.length; k++) {
+    var idx = shown[k].index;
+    var c = shown[k].item;
     html += '<div class="contact-edit-card">'+
-            '<input data-idx="'+i+'" data-field="name" value="'+esc(c.name)+'" placeholder="姓名">'+
-            '<input data-idx="'+i+'" data-field="phone" value="'+esc(c.phone||'')+'" placeholder="电话">'+
+            '<input data-idx="'+idx+'" data-field="name" value="'+esc(c.name)+'" placeholder="姓名">'+
+            '<input data-idx="'+idx+'" data-field="phone" value="'+esc(c.phone||'')+'" placeholder="电话">'+
             '</div>';
   }
   html += '</div>';
+
+  // 未搜索且未全部展示时，显示"加载更多"按钮
+  if (!kw && !contactShowAll && filtered.length > CONTACT_PAGE_SIZE) {
+    html += '<div style="text-align:center;margin-top:12px;">'+
+            '<button id="btnMore" class="btn btn-more" style="background:#5B8FF9;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:14px;cursor:pointer;">查看全部 ' + filtered.length + ' 位教师</button>'+
+            '</div>';
+  }
+
   box.innerHTML = html;
+
+  if (countEl) {
+    if (kw) {
+      countEl.innerHTML = '找到 <b>' + shown.length + '</b> 位教师';
+    } else {
+      countEl.innerHTML = '共 <b>' + filtered.length + '</b> 位教师' + (shown.length < filtered.length ? '（当前显示前 ' + shown.length + ' 条，可搜索或点"查看全部"）' : '');
+    }
+  }
+
   // 绑定通讯录输入
-  box.querySelectorAll('input').forEach(function(inp){
+  box.querySelectorAll('.contact-edit-card input').forEach(function(inp){
     inp.addEventListener('input', function(){
       var idx = +this.getAttribute('data-idx');
       var field = this.getAttribute('data-field');
       if(contactsData[idx]) contactsData[idx][field] = this.value;
     });
   });
+
+  // 绑定"查看全部"按钮
+  var btnMore = document.getElementById('btnMore');
+  if (btnMore) {
+    btnMore.addEventListener('click', function(){
+      contactShowAll = true;
+      renderContacts();
+    });
+  }
+}
+
+function initContactSearch() {
+  var input = document.getElementById('contactSearch');
+  var btnClear = document.getElementById('btnClearSearch');
+  if (!input) return;
+  input.addEventListener('input', function(){
+    contactKeyword = this.value;
+    contactShowAll = false;
+    renderContacts();
+  });
+  if (btnClear) {
+    btnClear.addEventListener('click', function(){
+      contactKeyword = '';
+      contactShowAll = false;
+      input.value = '';
+      renderContacts();
+    });
+  }
 }
 
 // 课表格子输入时同步到 scheduleData
@@ -235,6 +339,7 @@ __whenDataReady__(function(){
   fillClassSelect();
   renderClassTable();
   bindTableInputs();
+  initContactSearch();
   renderContacts();
 });
 </script>
