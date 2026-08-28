@@ -256,14 +256,24 @@ function initContacts() {
         return;
     }
 
+    var CONTACT_PAGE_SIZE = 10; // 默认只展示前 10 条
+    var contactShowAll = false;
+
     function render(list) {
         if (!list || list.length === 0) {
             container.innerHTML = '<p class="no-result">未找到匹配的联系人</p>';
             return;
         }
+
+        // 未点"查看全部"时只展示前 N 条
+        var shown = list;
+        if (!contactShowAll && list.length > CONTACT_PAGE_SIZE) {
+            shown = list.slice(0, CONTACT_PAGE_SIZE);
+        }
+
         var html = '<div class="contacts-grid">';
-        for (var i = 0; i < list.length; i++) {
-            var c = list[i];
+        for (var i = 0; i < shown.length; i++) {
+            var c = shown[i];
             var phone = c.phone || '';
             html += '<div class="contact-item">' +
                     '<span class="contact-name">' + (c.name || '') + '</span>' +
@@ -273,13 +283,30 @@ function initContacts() {
                     '</div>';
         }
         html += '</div>';
+
+        // 未全部展示时，显示"查看全部"按钮
+        if (!contactShowAll && list.length > CONTACT_PAGE_SIZE) {
+            html += '<div style="text-align:center;margin-top:12px">' +
+                    '<button id="btn-contacts-more" class="btn-blue" style="border:none;border-radius:8px;padding:9px 20px;font-size:14px;cursor:pointer;">查看全部 ' + list.length + ' 位教师</button>' +
+                    '</div>';
+        }
+
         container.innerHTML = html;
+
+        var btnMore = document.getElementById('btn-contacts-more');
+        if (btnMore) {
+            btnMore.addEventListener('click', function() {
+                contactShowAll = true;
+                render(list);
+            });
+        }
     }
 
     render(contactsData);
 
     if (input) {
         input.addEventListener('input', function() {
+            contactShowAll = false; // 每次搜索时重新只显示前几条
             render(searchContacts(this.value.trim()));
         });
     }
