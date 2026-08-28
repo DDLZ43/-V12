@@ -49,15 +49,27 @@ function initTeacherSuggest(){
     var val = this.value.trim();
     activeIndex = -1;
     if (!val) { suggest.classList.remove('show'); return; }
-    var filtered = allTeachersArr.filter(function(t){ return t.indexOf(val) !== -1; });
+    // 支持：中文子串、拼音首字母（如输入 "Z" 匹配"张"、"zl"匹配"张兰"）
+    var matchNameFn = (typeof window.matchName === 'function') ? window.matchName : function(nm, kw){ return nm.indexOf(kw) !== -1; };
+    var filtered = allTeachersArr.filter(function(t){ return matchNameFn(t, val); });
     if (filtered.length===0) {
       suggest.innerHTML = '<li class="no-match">无匹配教师</li>';
     } else {
       var lis = '';
+      var vLower = val.toLowerCase();
       for (var i=0;i<filtered.length;i++){
         var t = filtered[i];
-        var idx = t.indexOf(val);
-        lis += '<li data-name="'+t+'">'+t.slice(0,idx)+'<span class="hl">'+val+'</span>'+t.slice(idx+val.length)+'</li>';
+        var tLower = t.toLowerCase();
+        var idx = tLower.indexOf(vLower);
+        if (idx < 0) {
+          // 首字母匹配时无中文子串可高亮，直接显示全名
+          lis += '<li data-name="'+t+'">'+t+'</li>';
+        } else {
+          var before = t.slice(0, idx);
+          var match = t.slice(idx, idx + val.length);
+          var after = t.slice(idx + val.length);
+          lis += '<li data-name="'+t+'">'+before+'<span class="hl">'+match+'</span>'+after+'</li>';
+        }
       }
       suggest.innerHTML = lis;
     }
