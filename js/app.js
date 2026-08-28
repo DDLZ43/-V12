@@ -11,7 +11,7 @@ __whenDataReady__(function() {
 
 // ==================== 顶部导航切换 ====================
 function initNavTabs() {
-    var navBtns = document.querySelectorAll('.nav-btn');
+    var navBtns = document.querySelectorAll('.bottom-nav .bnav-btn');
     var panels = document.querySelectorAll('.panel');
     for (var i = 0; i < navBtns.length; i++) {
         navBtns[i].addEventListener('click', function() {

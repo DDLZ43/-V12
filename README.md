@@ -1,19 +1,18 @@
 # 白沙小学课表系统（课表 + 代课通知）
 
-两套系统共用同一份基础数据，手机端和电脑端都能通过网址访问，部署在 GitHub Pages。
+多套功能共用同一份基础数据，手机端和电脑端都能通过网址访问，部署在 GitHub Pages。
 
 ## 项目结构
 
 ```
 ├── index.html          课表系统（班级课表 / 教师课表 / 通讯录）
-├── daike.html          代课通知工具（需口令）
-├── admin.html          管理后台（数据统计 + 从 Excel 生成数据）
+├── editor.html         课表调整（可视化改课表 + 内嵌「代课工具」面板）
+├── import.html         原始课表导入（从 Excel 生成 data.json）
+├── admin.html          管理后台（数据统计）
 ├── js/
 │   ├── data.json       ★ 唯一数据文件（课表 + 通讯录），平时只改这一个
 │   ├── data-loader.js  加载 data.json 并注入所有页面
 │   ├── app.js          课表系统逻辑
-│   ├── daike.js        代课系统逻辑
-│   ├── daike-config.js 代课口令
 │   └── (data.js / contacts.js 已废弃，仅供备份参考)
 ├── css/style.css
 └── lib/xlsx.full.min.js
@@ -25,13 +24,13 @@
 2. 找到要改的位置：
    - **改课表**：`scheduleData` → 班级 → 星期 → 节次 → 修改 `course`（课程）/ `teacher`（教师）。
    - **改电话**：在 `contactsData` 里找到对应名字，改 `phone`。
-3. 保存 → 上传 GitHub → 部署。课表系统、代课系统、管理后台会**同时更新**。
+3. 保存 → 上传 GitHub → 部署。课表系统、课表调整、管理后台会**同时更新**。
 
 > 班级增删、教师增删都没关系，系统会自动根据 data.json 里的内容显示，不用改代码。
 
 ## 每学期整体换课表（从 Excel 生成）
 
-1. 打开 `admin.html`（管理后台）。
+1. 打开 `import.html`（原始课表导入）。
 2. 在 Excel 中选中整个课表区域（第1行星期、第2行节次、所有班级课程和教师行），复制。
 3. 粘贴到文本框，点「生成 data.json」。
 4. 预览确认后「下载 data.json」，用它替换 `js/data.json`。

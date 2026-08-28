@@ -12,42 +12,10 @@ var PERIODS_NUM = [1,2,3,4,5,6];
 
 // 数据已由 data-loader.js 异步加载，等数据就绪后再初始化
 __whenDataReady__(function(){
-  initUnlock();
   initTeacherSuggest();
   initTool();
+  document.getElementById('leaveDate').value = todayStr();
 });
-
-/* ==================== 口令 ==================== */
-function initUnlock(){
-  var btn = document.getElementById('btnUnlock');
-  var input = document.getElementById('lockInput');
-
-  function doUnlock(){
-    document.getElementById('lockScreen').style.display = 'none';
-    document.getElementById('toolScreen').style.display = 'block';
-    document.getElementById('leaveDate').value = todayStr();
-  }
-  function tryUnlock(){
-    if (input.value === String(DAKE_PASSWORD)) {
-      doUnlock();
-    } else {
-      document.getElementById('lockErr').style.display = 'block';
-      input.value = '';
-      input.focus();
-    }
-  }
-
-  // 从 editor 的「返回代课」跳转过来时（?auto=1），自动解锁，跳过口令
-  var m = /[?&]auto=([^&]*)/.exec(window.location.search);
-  if (m && m[1] === '1') {
-    doUnlock();
-    return;
-  }
-
-  btn.addEventListener('click', tryUnlock);
-  input.addEventListener('keydown', function(e){ if(e.key==='Enter') tryUnlock(); });
-  input.focus();
-}
 
 function todayStr(){
   var d = new Date();
@@ -254,7 +222,7 @@ function toggleDay(day){
   var btn = document.getElementById('dsbtn_'+day);
   if (btn){
     if (target){ btn.textContent='☒ 取消本天'; btn.style.background='#FF4D4F'; btn.style.color='#fff'; }
-    else { btn.textContent='☑ 全选本天'; btn.style.background='#5B8FF9'; btn.style.color='#fff'; }
+    else { btn.textContent='☑ 全选本天'; btn.style.background='#3FA7D4'; btn.style.color='#fff'; }
   }
   resetSelectAllBtn();
 }
@@ -269,7 +237,7 @@ function refreshDayBtns(){
     var btn = document.getElementById('dsbtn_'+day);
     if (!btn) return;
     if (allChecked){ btn.textContent='☒ 取消本天'; btn.style.background='#FF4D4F'; btn.style.color='#fff'; }
-    else { btn.textContent='☑ 全选本天'; btn.style.background='#5B8FF9'; btn.style.color='#fff'; }
+    else { btn.textContent='☑ 全选本天'; btn.style.background='#3FA7D4'; btn.style.color='#fff'; }
   });
 }
 

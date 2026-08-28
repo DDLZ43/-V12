@@ -6,34 +6,37 @@
 <title>白沙小学代课系统</title>
 <link rel="stylesheet" href="css/style.css">
 <style>
-.editor-wrap { max-width: 1000px; margin: 20px auto; padding: 20px; }
+.editor-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 40px; }
 .editor-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
 .editor-bar label { font-size: 14px; color: #555; margin: 0; }
-.editor-bar select { padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px; outline: none; }
-.editor-bar select:focus { border-color: #5B8FF9; }
+.editor-bar select { padding: 11px 15px; border: 1px solid #DCE3EC; border-radius: 10px; font-size: 15px; outline: none; font-family: inherit; transition: border-color .2s, box-shadow .2s; }
+.editor-bar select:focus { border-color: #3FA7D4; box-shadow: 0 0 0 3px rgba(63,167,212,0.18); }
 .editor-bar .btn { padding: 8px 16px; border: none; border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; }
 .btn-save { background: #52c41a; }
-.btn-add { background: #5B8FF9; }
+.btn-add { background: #3FA7D4; }
 .btn-export { background: #fa8c16; }
 .ecard { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 20px; margin-bottom: 16px; }
-.ecard h3 { font-size: 16px; color: #5B8FF9; margin-bottom: 12px; }
-/* ===== 编辑器课表：套用 index.html「班级课表」显示效果 ===== */
+.ecard h3 { font-size: 16px; color: #2C3E50; margin-bottom: 12px; }
+.ecard-title { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.ecard-title h3 { margin-bottom: 0; }
+/* ===== 编辑器课表：套用 index.html「班级课表」显示效果（美化版） ===== */
 .editor-table-shell { padding: 0; margin: 0; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
 .editor-table { width: auto; min-width: 620px; margin: 0 auto; border-collapse: separate; border-spacing: 0; font-size: 13px; }
 .editor-table thead tr { height: 36px; }
-.editor-table th, .editor-table td { border: 1px solid #E8E8E8; padding: 6px 3px; text-align: center; vertical-align: middle; white-space: nowrap; }
-.editor-table th { background: linear-gradient(135deg, #5B8FF9 0%, #7AA6FF 100%); color: #fff; font-weight: 600; font-size: 14px; height: 36px; padding: 0 8px; }
-.editor-table .time-col { background: #E8F4FF; color: #3B6DB5; font-weight: 700; width: 26px !important; min-width: 26px !important; max-width: 26px !important; font-size: 13px; position: sticky; left: 0; z-index: 10; border-right: 2px solid #D0E3FF; padding: 6px 2px; }
+.editor-table th, .editor-table td { border: 1px solid #E9EEF8; padding: 6px 3px; text-align: center; vertical-align: middle; white-space: nowrap; }
+.editor-table th { background: linear-gradient(135deg, #3FA7D4 0%, #6BC6EA 100%); color: #fff; font-weight: 600; font-size: 14px; height: 36px; padding: 0 8px;}
+.editor-table .time-col { background: linear-gradient(180deg, #EAF3FF 0%, #DCEBFF 100%); color: #276A92; font-weight: 700; width: 26px !important; min-width: 26px !important; max-width: 26px !important; font-size: 13px; position: sticky; left: 0; z-index: 10; border-right: 2px solid #A8DCEF; padding: 6px 2px; }
+.editor-table th.time-col { background: linear-gradient(135deg, #2B8BBB 0%, #5DBBE0 100%); color: #fff; width: 34px !important; min-width: 34px !important; max-width: 34px !important; }
 .editor-table .day-header { width: 116px; min-width: 116px; max-width: 116px; }
 .editor-table tbody tr { height: 58px; }
 .editor-table tbody td { width: 116px; min-width: 116px; max-width: 116px; padding: 4px 3px; }
 /* 课程格子：仿 index 的 course-box，内含两个可编辑输入框 */
-.editor-table .course-box { background: #F0F7FF; border-radius: 6px; padding: 3px 3px; margin: 1px 1px; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.editor-table .course-box { background: linear-gradient(180deg, #F2F7FF 0%, #E9F1FF 100%); border: 1px solid #E3EEFF; border-radius: 8px; padding: 3px 3px; margin: 1px 1px; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 .editor-table .cell-input { width: 100%; box-sizing: border-box; border: 1px solid transparent; text-align: center; padding: 1px 1px; font-size: 12px; outline: none; background: transparent; border-radius: 4px; }
-.editor-table .cell-input:focus { border-color: #5B8FF9; background: #fff; }
+.editor-table .cell-input:focus { border-color: #3FA7D4; background: #fff; }
 .editor-table .cell-input.course { font-weight: 700; color: #2C4A7C; }
 .editor-table .cell-input.course::placeholder { color: #A9C4F0; font-weight: 700; font-size: 11px; }
-.editor-table .cell-input.teacher { border-top: 1px dashed #CFE2FF; color: #5B8FF9; }
+.editor-table .cell-input.teacher { border-top: 1px dashed #CFE2FF; color: #3FA7D4; }
 .editor-table .cell-input.teacher::placeholder { color: #A9C4F0; font-size: 11px; }
 .editor-table td:hover .course-box { background: #E0EDFF; }
 .editor-table tbody tr:hover { background: #FAFBFC; }
@@ -51,22 +54,221 @@
   background: #fff;
   transition: border-color .2s, box-shadow .2s;
 }
-.contacts-search input:focus { border-color: #5B8FF9; box-shadow: 0 0 0 3px rgba(91,143,249,0.15); }
+.contacts-search input:focus { border-color: #3FA7D4; box-shadow: 0 0 0 3px rgba(63,167,212,0.15); }
 .contacts-search .btn-clear { background: #ff4d4f; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
 .contacts-search .btn-clear:hover { background: #e64545; }
 .contact-count { font-size: 13px; color: #999; margin-bottom: 10px; }
-.contact-count b { color: #5B8FF9; }
+.contact-count b { color: #3FA7D4; }
 .contacts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 .contact-edit-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; background: #FAFAFA; border-radius: 10px; border: 1px solid #F0F0F0; transition: all .2s; }
-.contact-edit-card:hover { background: #F0F5FF; border-color: #5B8FF9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(91,143,249,0.1); }
+.contact-edit-card:hover { background: #F0F5FF; border-color: #3FA7D4; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(63,167,212,0.1); }
 .contact-edit-card input { border: 1px solid #E0E0E0; border-radius: 8px; padding: 8px 10px; font-size: 14px; outline: none; background: #fff; transition: border-color .2s; }
-.contact-edit-card input:focus { border-color: #5B8FF9; box-shadow: 0 0 0 3px rgba(91,143,249,0.15); }
+.contact-edit-card input:focus { border-color: #3FA7D4; box-shadow: 0 0 0 3px rgba(63,167,212,0.15); }
 .contact-edit-card input[data-field=name] { width: 150px; font-weight: 600; color: #333; }
-.contact-edit-card input[data-field=phone] { width: 170px; color: #5B8FF9; }
-.hint-line { background: #f6f8ff; border-left: 4px solid #5B8FF9; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 16px; font-size: 13px; color: #555; line-height: 1.6; }
+.contact-edit-card input[data-field=phone] { width: 170px; color: #3FA7D4; }
+.hint-line { background: #f6f8ff; border-left: 4px solid #3FA7D4; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 16px; font-size: 13px; color: #555; line-height: 1.6; }
+
+/* ===== 面板切换（编辑 / 代课） ===== */
+.editor-panel { display: none; }
+.editor-panel.active { display: block; animation: edFadeIn .25s ease; }
+@keyframes edFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== 代课工具（并入 daike.html 的样式） ===== */
+.dk-query { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.dk-query label { font-size: 14px; color: #555; font-weight: 500; white-space: nowrap; }
+.dk-query input {
+  padding: 11px 15px; border: 1px solid #DCE3EC; border-radius: 10px; font-size: 15px;
+  min-width: 200px; background: #fff; transition: border-color .2s, background .2s, box-shadow .2s; font-family: inherit;
+}
+.dk-query input:focus { outline: none; border-color: #3FA7D4; background: #FFFDF5; box-shadow: 0 0 0 3px rgba(63,167,212,.18); }
+.input-wrap { position: relative; display: inline-block; }
+.suggest-list {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #fff;
+  border: 1px solid #E8E8E8; border-radius: 10px; max-height: 240px; overflow-y: auto;
+  z-index: 100; display: none; list-style: none; box-shadow: 0 8px 24px rgba(0,0,0,.12); padding: 6px 0;
+}
+.suggest-list.show { display: block; }
+.suggest-list li { padding: 9px 14px; cursor: pointer; font-size: 15px; }
+.suggest-list li:hover, .suggest-list li.active { background: #F0F5FF; color: #3FA7D4; }
+.suggest-list li .hl { color: #35A0CF; font-weight: 700; }
+.suggest-list .no-match { color: #999; cursor: default; text-align: center; }
+.dk-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.date-input {
+  border: 1px solid #DCE3EC; border-radius: 10px; padding: 11px 15px; font-size: 15px;
+  font-family: inherit; background: #fff; transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.date-input:focus { outline: none; border-color: #3FA7D4; background: #FFFDF5; box-shadow: 0 0 0 3px rgba(63,167,212,.18); }
+.dk-btn { padding: 10px 20px; color: #fff; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; transition: all .2s; font-weight: 500; }
+.dk-btn-blue { background: #3FA7D4; } .dk-btn-blue:hover { background: #2F96C6; }
+.dk-btn-green { background: #52c41a; font-weight: 600; } .dk-btn-green:hover { background: #45a317; }
+.dk-btn-orange { background: #FA8C16; font-weight: 600; } .dk-btn-orange:hover { background: #E07B0A; }
+.dk-btn-grey { background: #999; } .dk-btn-grey:hover { background: #7f7f7f; }
+.week-group { margin-bottom: 6px; }
+.week-head {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #F0F5FF;
+  border-radius: 10px; margin-bottom: 8px; cursor: pointer; user-select: none;
+}
+.week-head:hover { background: #E4EEFF; }
+.week-head .week-name { font-weight: 700; color: #3FA7D4; font-size: 15px; }
+.week-head .week-count { color: #888; font-size: 13px; margin-left: auto; }
+.day-select-btn {
+  display: inline-block; padding: 4px 12px; background: #3FA7D4; color: #fff;
+  border-radius: 14px; font-size: 12px; cursor: pointer; margin-left: 10px; font-weight: 600;
+  flex-shrink: 0; user-select: none;
+}
+.day-select-btn:hover { background: #2F96C6; }
+.week-body { padding-left: 8px; display: none; }
+.week-body.open { display: block; }
+.period-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
+  margin-bottom: 4px; border: 1px solid #F0F0F0; cursor: pointer; transition: background .15s;
+}
+.period-row:hover { background: #FAFBFC; }
+.period-row.selected { background: #EBF7FF; border-color: #91D5FF; }
+.period-row input[type=checkbox] { width: 18px; height: 18px; accent-color: #3FA7D4; flex-shrink: 0; }
+.period-info { font-size: 14px; color: #333; }
+.period-info .cls { color: #3FA7D4; font-weight: 600; }
+.period-info .bz { color: #FA8C16; font-size: 12px; margin-left: 6px; }
+#notifPreview {
+  background: #F8F9FB; border: 1px solid #E8E8E8; border-radius: 10px; padding: 16px;
+  font-family: "SF Mono", Consolas, monospace; font-size: 13px; white-space: pre-wrap; line-height: 1.8;
+  min-height: 120px; display: none; max-height: 400px; overflow-y: auto;
+}
+.copy-bar { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+#copyHint { color: #52c41a; font-size: 13px; display: none; }
+.accum-bar {
+  background: #FFF7E6; border: 1px solid #FFD591; color: #D46B08; padding: 10px 14px;
+  border-radius: 10px; font-size: 13px; margin-bottom: 12px; display: none; line-height: 1.7;
+}
+.bar-btn {
+  display: inline-block; padding: 5px 14px; border: 1px solid #FFD591; color: #D46B08;
+  border-radius: 8px; font-size: 12px; cursor: pointer; margin-right: 8px; background: #fff;
+}
+.bar-btn:hover { background: #FFF1D6; }
+
+/* ===== 导入工具（原 import.html） ===== */
+.import-panel {}
+.tool-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 20px; margin-bottom: 16px; }
+.tool-card h3 { font-size: 17px; color: #2C3E50; margin-bottom: 12px; }
+.tool-textarea { width: 100%; min-height: 220px; padding: 12px; border: 1px solid #DCE3EC; border-radius: 8px; font-size: 13px; font-family: monospace; resize: vertical; outline: none; transition: border-color .2s, box-shadow .2s; }
+.tool-textarea:focus { border-color: #3FA7D4; box-shadow: 0 0 0 3px rgba(63,167,212,0.18); }
+.tool-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #35A0CF 0%, #5DBBE0 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px; font-family: inherit; }
+.tool-btn:hover { background: linear-gradient(135deg, #2B8BBB 0%, #3FA7D4 100%); }
+.tool-btn:active { transform: scale(0.98); }
+.tool-btn-secondary { background: #f5f5f5; color: #333; margin-top: 8px; }
+.tool-btn-secondary:hover { background: #e8e8e8; }
+.tool-btn-success { background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%); }
+.tool-btn-success:hover { background: linear-gradient(135deg, #45a317 0%, #52c41a 100%); }
+#import_output { display: none; }
+#jsOutput { width: 100%; min-height: 200px; padding: 12px; border: 1px solid #DCE3EC; border-radius: 8px; font-size: 12px; font-family: monospace; background: #fafafa; resize: vertical; transition: border-color .2s, box-shadow .2s; }
+#jsOutput:focus { outline: none; border-color: #3FA7D4; box-shadow: 0 0 0 3px rgba(63,167,212,0.18); }
+.preview-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+.preview-table th { background: #3FA7D4; color: white; padding: 6px; text-align: left; font-weight: 600; }
+.preview-table td { border: 1px solid #eee; padding: 6px; }
+.preview-table tr:nth-child(even) { background: #f8f9fa; }
+.stats { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.stat-item { background: #e6f7ff; color: #096dd9; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+.hint { background: #f6f8ff; border-left: 4px solid #3FA7D4; padding: 12px 16px; margin-bottom: 16px; border-radius: 0 8px 8px 0; font-size: 13px; color: #555; line-height: 1.65; }
+.hint strong { color: #3FA7D4; }
+.hint code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+#import_copyHint { color: #52c41a; font-size: 13px; margin-top: 8px; text-align: center; display: none; }
+.preview-wrap { max-height: 300px; overflow: auto; border: 1px solid #DCE3EC; border-radius: 8px; margin-top: 12px; }
+.alert { padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
+.alert-info { background: #e6f7ff; border: 1px solid #91d5ff; color: #096dd9; }
+.alert-err { background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; }
+.btn-row { display: flex; gap: 10px; margin-top: 12px; }
+.btn-row .tool-btn { flex: 1; margin-top: 0; }
+.import-panel label { display: block; font-size: 14px; color: #555; margin-bottom: 6px; margin-top: 12px; }
+.import-panel label:first-of-type { margin-top: 0; }
+
+/* ===== 底部导航操作栏（固定底部） ===== */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, #ffffff 60%);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  border-top: 1px solid rgba(150,200,225,0.35);
+  box-shadow: 0 -4px 20px rgba(70,150,195,0.10);
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+}
+.bnav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 9px 6px;
+  color: #6E8294;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 12px;
+  transition: color .2s, background .2s, box-shadow .2s, transform .1s;
+  position: relative;
+}
+.bnav-btn:hover {
+  color: #2a8fbd;
+  background: rgba(110, 200, 235, 0.16);
+}
+.bnav-btn:active { transform: scale(0.96); }
+.bnav-btn.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #2f9fcb 0%, #4fc3e0 100%);
+  box-shadow: 0 5px 14px rgba(47, 159, 203, 0.35);
+}
+.bnav-text { font-size: 14px; font-weight: 700; }
+
+/* 给固定底部导航留出空间 */
+.editor-wrap { padding-bottom: 108px; }
 
 /* ===== 移动端适配 ===== */
 @media (max-width: 768px) {
+  .editor-wrap { padding: 16px 12px 116px; }
+  .bnav-btn { padding: 8px 4px; }
+  .bnav-text { font-size: 13px; }
+  .bottom-nav { padding: 8px 8px !important; gap: 6px !important; }
+  .ecard { padding: 14px; }
+  .ecard h3 { font-size: 15px; }
+  .hint-line { padding: 10px 12px; }
+
+  /* 代课工具：移动端竖排 + 全宽按钮 */
+  .dk-query { flex-direction: column; align-items: stretch; gap: 10px; }
+  .dk-query .input-wrap,
+  .dk-query input { width: 100%; min-width: auto; }
+  .dk-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+  .dk-toolbar .date-input { width: 100%; font-size: 16px; }
+  .dk-btn { width: 100%; font-size: 15px; padding: 12px; }
+  .copy-bar { flex-direction: column; align-items: stretch; gap: 10px; }
+  #copyHint { text-align: center; }
+  .week-body { padding-left: 0; }
+  .period-row { padding: 10px; }
+  .period-row input[type=checkbox] { width: 20px; height: 20px; }
+  .editor-bar { flex-direction: column; align-items: stretch; gap: 10px; }
+  .editor-bar select { width: 100%; font-size: 16px; }
+  .editor-bar .btn { width: 100%; font-size: 15px; padding: 12px; }
+
+  /* 导入工具：移动端适配 */
+  .tool-card { padding: 14px; }
+  .tool-card h3 { font-size: 15px; }
+  .tool-textarea { font-size: 14px; min-height: 180px; }
+  .btn-row { flex-direction: column; gap: 10px; }
+  .btn-row .tool-btn { width: auto; font-size: 15px; padding: 12px; }
+  .tool-btn { font-size: 16px; padding: 14px; }
+  .import-panel label { font-size: 14px; }
+  .stats { gap: 8px; }
+  .stat-item { font-size: 12px; padding: 5px 10px; }
+
   .editor-table { min-width: 520px; font-size: 12px; }
   .editor-table th { font-size: 13px; height: 34px; padding: 0 6px; }
   .editor-table .time-col { width: 36px !important; min-width: 36px !important; max-width: 36px !important; font-size: 12px; padding: 4px 2px; }
@@ -79,6 +281,16 @@
   .contact-edit-card input[data-field=name] { flex: 1; width: auto; min-width: 80px; }
   .contact-edit-card input[data-field=phone] { flex: 1; width: auto; }
 }
+
+/* ===== 编辑器标题：居中 + 标题字体 ===== */
+.header-inner { justify-content: center !important; }
+.logo-text {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #1d4e63 !important;
+  letter-spacing: 1px !important;
+  font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif !important;
+}
 </style>
 </head>
 <body>
@@ -86,19 +298,14 @@
 <header class="top-header">
   <div class="header-inner">
     <div class="logo-area">
-      <span class="logo-icon">🏫</span>
-      <span class="logo-text">白沙小学代课系统</span>
+      <span class="logo-text">代课管理助手</span>
     </div>
-    <nav class="top-nav">
-      <a href="daike.html?auto=1" class="nav-btn"><span class="nav-icon">📑</span>返回代课</a>
-      <a href="index.html" class="nav-btn"><span class="nav-icon">📋</span>查看课表</a>
-      <a href="editor.html" class="nav-btn active"><span class="nav-icon">✏️</span>修改数据</a>
-      <a href="import.html" class="nav-btn"><span class="nav-icon">📥</span>导入数据</a>
-    </nav>
   </div>
 </header>
 
 <div class="editor-wrap">
+
+  <div class="editor-panel active" id="panel-edit">
   <div class="hint-line">
     用法：<b>选班级</b> → 表格里直接点格子<b>改课程/教师</b>，改完点 <b>保存并导出 data.json</b>，用下载的文件替换 <code>js/data.json</code> 即可上线。<br>
     新增格子：某节原本空白，直接在对应格输入内容，保存后就有这一节了。<br>
@@ -108,8 +315,8 @@
   <div class="editor-bar">
     <label>选班级</label>
     <select id="classSelect"></select>
-    <button class="btn btn-save" id="btnSave">💾 保存并导出 data.json</button>
-    <button class="btn btn-add" id="btnMissing">❓ 这节课没显示？</button>
+    <button class="btn btn-save" id="btnSave">保存并导出 data.json</button>
+    <button class="btn btn-add" id="btnMissing">这节课没显示？</button>
   </div>
 
   <div class="ecard">
@@ -127,11 +334,122 @@
     <div id="contactCount" class="contact-count"></div>
     <div class="contacts-box" id="contactsBox"></div>
   </div>
-</div>
+  </div><!-- /panel-edit -->
 
-<footer class="page-footer">
-  <p>白沙小学课表系统 · 简约清新版（编辑器）</p>
-</footer>
+  <div class="editor-panel" id="panel-daike">
+
+    <!-- 查询教师 -->
+    <div class="ecard">
+      <div class="ecard-title"><span class="title-bar"></span><h3>教师请假登记</h3></div>
+      <div class="dk-query">
+        <label>教师姓名：</label>
+        <div class="input-wrap">
+          <input type="text" id="teacherInput" placeholder="输入并选择教师姓名" autocomplete="off">
+          <ul id="teacherSuggest" class="suggest-list"></ul>
+        </div>
+        <button id="btnQuery" class="dk-btn dk-btn-blue">查询课程</button>
+      </div>
+      <div class="dk-toolbar">
+        <span>请假日期：</span>
+        <input type="date" id="leaveDate" class="date-input">
+        <button id="btnSelectAll" class="dk-btn dk-btn-green">全选</button>
+      </div>
+    </div>
+
+    <!-- 累积池状态栏 -->
+    <div id="accumBar" class="accum-bar"></div>
+
+    <!-- 星期节次选择 -->
+    <div class="ecard">
+      <div class="ecard-title"><span class="title-bar"></span><h3>勾选需代课的节次</h3></div>
+      <div id="scheduleArea"></div>
+    </div>
+
+    <!-- 生成操作 -->
+    <div class="ecard">
+      <div class="ecard-title"><span class="title-bar"></span><h3>生成操作</h3></div>
+      <div class="dk-toolbar">
+        <button id="btnRecord" class="dk-btn dk-btn-green">生成记录(加入累积)</button>
+        <button id="btnExport" class="dk-btn dk-btn-orange">导出Excel(全部累积)</button>
+        <button id="btnClearAll" class="dk-btn dk-btn-grey">清空累积</button>
+      </div>
+    </div>
+
+    <!-- 通知预览 -->
+    <div class="ecard">
+      <div class="ecard-title"><span class="title-bar"></span><h3>代课通知</h3></div>
+      <div id="notifPreview"></div>
+      <div class="copy-bar">
+        <button id="btnCopy" class="dk-btn dk-btn-orange">一键复制到微信</button>
+        <span id="copyHint">✅ 已复制，请粘贴到微信</span>
+      </div>
+    </div>
+
+  </div><!-- /panel-daike -->
+
+  <div class="editor-panel" id="panel-import">
+    <div class="import-panel">
+
+      <!-- 转换工具 -->
+      <div class="tool-card">
+        <h3>原始课表导入 / 转换工具</h3>
+        <div class="hint">
+          <strong>使用步骤：</strong><br>
+          1. 在 Excel 中选中整个课表区域（<strong>包含第1行星期、第2行节次、所有班级课程和教师行</strong>），按 Ctrl+C 复制<br>
+          2. 粘贴到下方文本框中<br>
+          3. 点击"生成数据"，预览确认后下载 data.json 文件<br>
+          4. 将下载的 data.json 放到项目 js/ 目录下替换原文件<br>
+          <br>
+          <strong>说明：</strong>转换会自动把新课表的教师，与当前已有的通讯录电话合并，<strong>原有电话不会丢失</strong>。
+        </div>
+        <label>粘贴 Excel 数据</label>
+        <textarea id="inputData" class="tool-textarea" placeholder="请从 Excel 复制课表数据后粘贴到这里...
+
+格式要求：
+第1行：星期行（星期 星期一 星期一 ... 星期五）
+第2行：节次行（班级 1 2 3 4 午休 5 6 1 2...）
+第3行起：每两行一个班级，第一行课程名，第二行教师名"></textarea>
+        <button class="tool-btn" onclick="generateData()">生成 data.json</button>
+      </div>
+
+      <div id="import_output" class="tool-card">
+        <h3>预览与下载</h3>
+        <div id="resultAlert"></div>
+        <div class="stats" id="statsArea"></div>
+        <div class="preview-wrap">
+          <table class="preview-table" id="previewTable">
+            <thead><tr><th>班级</th><th>星期</th><th>节次</th><th>课程</th><th>教师</th></tr></thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="tool-btn tool-btn-success" onclick="downloadData()">下载 data.json</button>
+          <button class="tool-btn tool-btn-secondary" onclick="copyData()">复制到剪贴板</button>
+        </div>
+        <p id="import_copyHint">✅ 已复制到剪贴板！</p>
+        <label style="margin-top:16px;">生成的 data.json（可直接替换 js/data.json）：</label>
+        <textarea id="jsOutput" readonly></textarea>
+      </div>
+
+    </div>
+  </div><!-- /panel-import -->
+
+</div><!-- /editor-wrap -->
+
+<!-- 底部导航操作栏（固定底部，手机端随底部常驻） -->
+<nav class="bottom-nav">
+  <a href="#" data-panel="daike" class="bnav-btn" onclick="switchEditorPanel('daike');return false;">
+    <span class="bnav-text">代课</span>
+  </a>
+  <a href="#" data-panel="edit" class="bnav-btn active" onclick="switchEditorPanel('edit');return false;">
+    <span class="bnav-text">修改</span>
+  </a>
+  <a href="#" data-panel="import" class="bnav-btn" onclick="switchEditorPanel('import');return false;">
+    <span class="bnav-text">导入</span>
+  </a>
+</nav>
+
+<footer class="page-footer"></footer>
 
 <script src="js/data-loader.js"></script>
 <script>
@@ -249,7 +567,7 @@ function renderContacts() {
   // 未搜索且未全部展示时，显示"加载更多"按钮
   if (!kw && !contactShowAll && filtered.length > CONTACT_PAGE_SIZE) {
     html += '<div style="text-align:center;margin-top:12px;">'+
-            '<button id="btnMore" class="btn btn-more" style="background:#5B8FF9;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:14px;cursor:pointer;">查看全部 ' + filtered.length + ' 位教师</button>'+
+            '<button id="btnMore" class="btn btn-more" style="background:#3FA7D4;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:14px;cursor:pointer;">查看全部 ' + filtered.length + ' 位教师</button>'+
             '</div>';
   }
 
@@ -350,6 +668,232 @@ __whenDataReady__(function(){
   initContactSearch();
   renderContacts();
 });
+
+/* ===== 面板切换（修改 / 代课） ===== */
+function switchEditorPanel(name){
+  var panels = document.querySelectorAll('.editor-panel');
+  panels.forEach(function(p){ p.classList.remove('active'); });
+  var navs = document.querySelectorAll('.bottom-nav .bnav-btn');
+  navs.forEach(function(n){ n.classList.remove('active'); });
+
+  var target = document.getElementById('panel-' + name);
+  var nav = document.querySelector('.bottom-nav .bnav-btn[data-panel="' + name + '"]');
+  if (target) target.classList.add('active');
+  if (nav) nav.classList.add('active');
+
+  // 更新 URL 锚点，方便刷新/分享直达代课面板
+  try {
+    if (name === 'daike') history.replaceState(null, '', '#daike');
+    else {
+      var cleanUrl = window.location.href.split('#')[0];
+      history.replaceState(null, '', cleanUrl);
+    }
+  } catch(e){}
+}
+
+// 支持 editor.html#daike 打开时直接进入代课面板
+(function(){
+  if (window.location.hash === '#daike' || window.location.hash === '#代课') {
+    switchEditorPanel('daike');
+  }
+})();
+
+/* ===== 导入工具逻辑（原 import.html） ===== */
+var generatedJSON = null;
+var generatedJSText = '';
+var scheduleDataLocal = {};
+
+function parseTSV(text) {
+  return text.trim().split('\n').map(function(line) { return line.split('\t'); });
+}
+
+function generateData() {
+  var raw = document.getElementById('inputData').value.trim();
+  if (!raw) { alert('请先粘贴 Excel 数据'); return; }
+
+  var rows = parseTSV(raw);
+  if (rows.length < 3) { alert('数据行数不足，请检查是否包含表头和数据'); return; }
+
+  try {
+    scheduleDataLocal = {};
+
+    var weekRow = rows[0];
+    var periodRow = rows[1];
+
+    var colMap = [];
+    for (var i = 1; i < weekRow.length; i++) {
+      var week = String(weekRow[i] || '').trim();
+      var period = String(periodRow[i] || '').trim();
+      if (period === '午休' || period === 'nan' || period === '') continue;
+      if (['1','2','3','4','5','6'].indexOf(period) !== -1 &&
+          ['星期一','星期二','星期三','星期四','星期五'].indexOf(week) !== -1) {
+        colMap.push({ col: i, week: week, period: parseInt(period) });
+      }
+    }
+
+    if (colMap.length === 0) {
+      showAlert('err', '未能识别到课表列，请检查第1行是否为星期、第2行是否为节次（1-6）');
+      return;
+    }
+
+    var rowIdx = 2;
+    var classPattern = /^[一二三四五六]\d+$/;
+
+    while (rowIdx < rows.length) {
+      var classRow = rows[rowIdx];
+      if (!classRow || classRow.length === 0) { rowIdx++; continue; }
+
+      var className = String(classRow[0] || '').trim();
+      if (!classPattern.test(className)) { rowIdx++; continue; }
+
+      if (rowIdx + 1 >= rows.length) break;
+      var teacherRow = rows[rowIdx + 1];
+
+      if (!scheduleDataLocal[className]) scheduleDataLocal[className] = {};
+
+      for (var m = 0; m < colMap.length; m++) {
+        var mapping = colMap[m];
+        var col = mapping.col;
+        var week = mapping.week;
+        var period = mapping.period;
+
+        var course = String(classRow[col] || '').trim();
+        var teacher = String(teacherRow[col] || '').trim();
+
+        if (!course || course === 'nan' || course === '' ||
+            !teacher || teacher === 'nan' || teacher === '') continue;
+
+        if (!scheduleDataLocal[className][week]) scheduleDataLocal[className][week] = {};
+        scheduleDataLocal[className][week][period] = {
+          course: course,
+          teacher: teacher,
+          room: '-'
+        };
+      }
+
+      rowIdx += 2;
+    }
+
+    var classCount = Object.keys(scheduleDataLocal).length;
+    if (classCount === 0) {
+      showAlert('err', '未能解析到任何班级数据，请检查班级名格式（如"一1"、"二2"等）');
+      return;
+    }
+
+    var scheduleArray = [];
+    var teacherSet = new Set();
+    for (var cls in scheduleDataLocal) {
+      for (var wk in scheduleDataLocal[cls]) {
+        for (var prd in scheduleDataLocal[cls][wk]) {
+          var item = scheduleDataLocal[cls][wk][prd];
+          teacherSet.add(item.teacher);
+          scheduleArray.push({
+            key: item.teacher + wk + prd,
+            teacher: item.teacher,
+            week: wk,
+            period: prd,
+            course: item.course,
+            className: cls
+          });
+        }
+      }
+    }
+
+    // ===== 生成通讯录：与已有通讯录合并，保留电话 =====
+    var oldContacts = (typeof contactsData !== 'undefined' && contactsData) ? contactsData : [];
+    var phoneMap = {};
+    for (var c = 0; c < oldContacts.length; c++) {
+      if (oldContacts[c] && oldContacts[c].name) phoneMap[oldContacts[c].name] = oldContacts[c].phone || '';
+    }
+    var teacherNames = Array.from(teacherSet).sort(function(a, b) { return a.localeCompare(b, 'zh-CN'); });
+    var contactsArr = teacherNames.map(function(name) {
+      return { name: name, phone: phoneMap[name] || '', note: '' };
+    });
+
+    // ===== 组装 data.json =====
+    generatedJSON = {
+      scheduleData: scheduleDataLocal,
+      contactsData: contactsArr,
+      periods: [1, 2, 3, 4, 5, 6],
+      days: ["星期一", "星期二", "星期三", "星期四", "星期五"]
+    };
+    generatedJSText = JSON.stringify(generatedJSON, null, 2);
+
+    showResult(classCount, scheduleArray.length, teacherSet.size);
+  } catch (err) {
+    console.error(err);
+    showAlert('err', '转换出错：' + err.message);
+  }
+}
+
+function showAlert(type, msg) {
+  var alertBox = document.getElementById('resultAlert');
+  var typeClass = type === 'err' ? 'alert-err' : 'alert-info';
+  alertBox.innerHTML = '<div class="alert ' + typeClass + '">' + msg + '</div>';
+}
+
+function showResult(classCount, recordCount, teacherCount) {
+  document.getElementById('import_output').style.display = 'block';
+  showAlert('info', '✅ 转换成功！共 ' + classCount + ' 个班级，' + recordCount + ' 条课表记录。');
+
+  document.getElementById('statsArea').innerHTML =
+    '<span class="stat-item">总课节: ' + recordCount + '</span>' +
+    '<span class="stat-item">班级: ' + classCount + '</span>' +
+    '<span class="stat-item">教师: ' + teacherCount + '</span>';
+
+  var tbody = document.getElementById('previewBody');
+  tbody.innerHTML = '';
+  var count = 0;
+  for (var cls in scheduleDataLocal) {
+    for (var wk in scheduleDataLocal[cls]) {
+      for (var prd in scheduleDataLocal[cls][wk]) {
+        if (count >= 50) break;
+        var item = scheduleDataLocal[cls][wk][prd];
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + cls + '</td><td>' + wk + '</td><td>第' + prd + '节</td><td>' + item.course + '</td><td>' + item.teacher + '</td>';
+        tbody.appendChild(tr);
+        count++;
+      }
+      if (count >= 50) break;
+    }
+    if (count >= 50) break;
+  }
+  if (recordCount > 50) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="5" style="text-align:center;color:#999;">... 还有 ' + (recordCount - 50) + ' 条记录 ...</td>';
+    tbody.appendChild(tr);
+  }
+
+  document.getElementById('jsOutput').value = generatedJSText;
+  var out = document.getElementById('import_output');
+  if (out.scrollIntoView) out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function downloadData() {
+  if (!generatedJSText) { alert('请先生成数据'); return; }
+  var blob = new Blob([generatedJSText], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'data.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  alert('已下载 data.json，请用新文件替换 js/ 目录下的 data.json');
+}
+
+function copyData() {
+  if (!generatedJSText) { alert('请先生成数据'); return; }
+  var el = document.getElementById('jsOutput');
+  el.select();
+  document.execCommand('copy');
+  document.getElementById('import_copyHint').style.display = 'block';
+  setTimeout(function() { document.getElementById('import_copyHint').style.display = 'none'; }, 3000);
+}
 </script>
+
+<script src="lib/xlsx.full.min.js"></script>
+<script src="js/daike.js"></script>
 </body>
 </html>

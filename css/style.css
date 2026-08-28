@@ -1,17 +1,35 @@
 /* ===== 基础重置 ===== */
 * { margin:0; padding:0; box-sizing:border-box; }
 
-html { font-size: 16px; }
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #F5F7FA;
-  color: #333;
-  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", "Noto Sans SC", sans-serif;
+  background: linear-gradient(180deg, #F2F8FC 0%, #E9F3F8 100%);
+  color: #37474F;
+  line-height: 1.65;
   min-height: 100vh;
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
   padding-bottom: 80px;
+  letter-spacing: 0.2px;
+}
+
+/* ===== 数字字体：清爽等宽显示 ===== */
+.num-note,
+.stat-num,
+.contact-phone,
+.schedule-table .course-meta,
+.schedule-table .time-col,
+.query-row select,
+.query-row input {
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "DIN Alternate", Roboto, Tahoma, "PingFang SC", sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ===== 顶部导航 ===== */
@@ -40,9 +58,9 @@ body {
 }
 .logo-icon { font-size: 20px; }
 .logo-text {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  color: #5B8FF9;
+  color: #2F96C6;
   letter-spacing: 0.5px;
 }
 
@@ -61,7 +79,7 @@ body {
   padding: 8px 16px;
   border: none;
   background: #F0F5FF;
-  color: #5B8FF9;
+  color: #3FA7D4;
   font-size: 14px;
   font-weight: 600;
   border-radius: 20px;
@@ -74,22 +92,22 @@ body {
   flex-shrink: 0;
 }
 .nav-btn:hover {
-  background: #5B8FF9;
+  background: linear-gradient(135deg, #2F96C6 0%, #5DBBE0 100%);
   color: #fff;
   transform: translateY(-1px);
 }
 .nav-btn.active {
-  background: #5B8FF9;
+  background: linear-gradient(135deg, #35A0CF 0%, #6BC6EA 100%);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(91,143,249,0.35);
+  box-shadow: 0 4px 14px rgba(63,167,212,0.35);
 }
 .nav-icon { font-size: 13px; }
 
 /* ===== 主体区域 ===== */
 .main-wrap {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 24px 16px 16px;
+  padding: 24px 16px 40px;
   overflow-x: hidden;
 }
 
@@ -104,8 +122,9 @@ body {
 /* ===== 卡片 ===== */
 .card {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-radius: 14px;
+  border: 1px solid rgba(160, 200, 220, 0.25);
+  box-shadow: 0 4px 20px rgba(80, 160, 200, 0.08);
   padding: 20px;
   margin-bottom: 16px;
 }
@@ -116,16 +135,17 @@ body {
   margin-bottom: 16px;
 }
 .title-bar {
-  width: 4px;
-  height: 20px;
-  background: #5B8FF9;
-  border-radius: 2px;
+  width: 5px;
+  height: 22px;
+  background: linear-gradient(180deg, #35A0CF 0%, #6BC6EA 100%);
+  border-radius: 3px;
   display: inline-block;
 }
 .card-title h2 {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
-  color: #333;
+  color: #1d4e63;
+  letter-spacing: 0.5px;
 }
 
 /* ===== 查询行 ===== */
@@ -143,27 +163,29 @@ body {
 }
 .query-row select,
 .query-row input {
-  padding: 10px 14px;
-  border: 1px solid #D9D9D9;
+  padding: 11px 15px;
+  border: 1px solid #DCE3EC;
   border-radius: 10px;
   font-size: 15px;
+  font-family: inherit;
   min-width: 200px;
   background: #fff;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color .2s, background .2s, box-shadow .2s;
   -webkit-appearance: none;
   appearance: none;
 }
 .query-row select:focus,
 .query-row input:focus {
   outline: none;
-  border-color: #5B8FF9;
-  box-shadow: 0 0 0 3px rgba(91,143,249,0.15);
+  border-color: #3FA7D4;
+  background: #FFFDF5;
+  box-shadow: 0 0 0 3px rgba(63,167,212,0.18);
 }
 
 /* ===== 按钮 ===== */
 .btn-blue {
-  padding: 10px 20px;
-  background: #5B8FF9;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #35A0CF 0%, #5DBBE0 100%);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -171,15 +193,17 @@ body {
   cursor: pointer;
   transition: all .2s;
   font-weight: 500;
+  font-family: inherit;
   -webkit-tap-highlight-color: rgba(0,0,0,0.1);
 }
 .btn-blue:hover {
-  background: #4A7DE4;
+  background: linear-gradient(135deg, #2B8BBB 0%, #3FA7D4 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(91,143,249,0.3);
+  box-shadow: 0 4px 12px rgba(63,167,212,0.3);
 }
 .btn-blue:active {
   transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(63,167,212,0.4);
 }
 
 /* ===== 输入框自动索引 ===== */
@@ -213,9 +237,9 @@ body {
 .suggest-list li:hover,
 .suggest-list li.active {
   background: #F0F5FF;
-  color: #5B8FF9;
+  color: #3FA7D4;
 }
-.suggest-list li .hl { color: #FF4D4F; font-weight: 700; }
+.suggest-list li .hl { color: #35A0CF; font-weight: 700; }
 .suggest-list .no-match {
   color: #999;
   cursor: default;
@@ -229,14 +253,15 @@ body {
 
 /* 表格容器：只有这里能横向滚动 */
 .result-card {
-  padding: 0;
+  padding: 10px;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   width: 100%;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #F0F0F0;
   margin-bottom: 16px;
 }
 
@@ -267,7 +292,7 @@ body {
 
 /* 表头单元格 */
 .schedule-table th {
-  background: linear-gradient(135deg, #5B8FF9 0%, #7AA6FF 100%);
+  background: linear-gradient(135deg, #3FA7D4 0%, #6BC6EA 100%);
   color: #fff;
   font-weight: 600;
   font-size: 15px;
@@ -278,8 +303,8 @@ body {
 
 /* 节次列 */
 .schedule-table .time-col {
-  background: #E8F4FF;
-  color: #3B6DB5;
+  background: linear-gradient(180deg, #EAF3FF 0%, #DCEBFF 100%);
+  color: #276A92;
   font-weight: 700;
   width: 100px;
   min-width: 100px;
@@ -288,10 +313,15 @@ body {
   position: sticky;
   left: 0;
   z-index: 10;
-  border-right: 2px solid #D0E3FF;
+  border-right: 2px solid #A8DCEF;
   padding: 8px 4px;
   white-space: nowrap;
   overflow: visible;
+}
+
+.schedule-table th.time-col {
+  background: linear-gradient(135deg, #2B8BBB 0%, #5DBBE0 100%);
+  color: #fff;
 }
 
 /* 星期列 */
@@ -323,11 +353,12 @@ body {
 
 /* 课程单元格：简洁上下两行 */
 .schedule-table .course-box {
-  background: #F0F7FF;
+  background: linear-gradient(180deg, #F2F7FF 0%, #E9F1FF 100%);
+  border: 1px solid #E3EEFF;
   border-radius: 8px;
   padding: 8px 6px;
   margin: 2px 4px;
-  height: 56px;
+  height: 54px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -337,14 +368,14 @@ body {
 
 .schedule-table .course-name {
   font-weight: 700;
-  color: #2C4A7C;
+  color: #1F5A75;
   font-size: 14px;
   line-height: 1.3;
   white-space: nowrap;
 }
 
 .schedule-table .course-meta {
-  color: #5B8FF9;
+  color: #3FA7D4;
   font-size: 13px;
   line-height: 1.3;
   white-space: nowrap;
@@ -361,11 +392,11 @@ body {
 /* ===== 教师信息 ===== */
 .info-card {
   background: linear-gradient(135deg, #F0F5FF 0%, #E6F7FF 100%);
-  border-left: 4px solid #5B8FF9;
+  border-left: 4px solid #3FA7D4;
   padding: 16px 20px;
 }
 .info-card h3 {
-  color: #5B8FF9;
+  color: #3FA7D4;
   font-size: 17px;
   margin-bottom: 6px;
 }
@@ -389,9 +420,9 @@ body {
 }
 .contact-item:hover {
   background: #F0F5FF;
-  border-color: #5B8FF9;
+  border-color: #3FA7D4;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(91,143,249,0.1);
+  box-shadow: 0 4px 12px rgba(63,167,212,0.1);
 }
 .contact-name {
   font-weight: 600;
@@ -399,7 +430,7 @@ body {
   font-size: 15px;
 }
 .contact-phone a {
-  color: #5B8FF9;
+  color: #3FA7D4;
   text-decoration: none;
   font-family: "SF Mono", Consolas, monospace;
   font-size: 14px;
@@ -426,8 +457,8 @@ body {
   gap: 8px;
   padding: 14px 32px;
   background: #fff;
-  color: #5B8FF9;
-  border: 2px solid #5B8FF9;
+  color: #3FA7D4;
+  border: 2px solid #3FA7D4;
   border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
@@ -435,10 +466,10 @@ body {
   transition: all .25s;
 }
 .btn-admin:hover {
-  background: #5B8FF9;
+  background: #3FA7D4;
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(91,143,249,0.25);
+  box-shadow: 0 6px 18px rgba(63,167,212,0.25);
 }
 .btn-admin:active {
   transform: translateY(0);
@@ -472,7 +503,7 @@ body {
   display: block;
   font-size: 24px;
   font-weight: 700;
-  color: #5B8FF9;
+  color: #3FA7D4;
 }
 .stat-label {
   font-size: 12px;
@@ -491,20 +522,26 @@ body {
     padding: 0 12px;
     height: 52px;
   }
-  .logo-text { font-size: 15px; }
+  .logo-text {
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 48vw;
+  }
   .nav-btn {
     padding: 7px 12px;
     font-size: 13px;
-    border-radius: 16px;
+    border-radius: 20px;
     gap: 4px;
   }
   .nav-icon { font-size: 12px; }
 
-  .main-wrap { padding: 16px 12px 12px; }
+  .main-wrap { padding: 16px 12px 32px; }
 
   .card {
     padding: 16px;
-    border-radius: 10px;
+    border-radius: 14px;
     margin-bottom: 12px;
   }
   .card-title { margin-bottom: 14px; }
@@ -731,4 +768,4 @@ body {
     padding: 6px 2px !important;
   }
 }
-.time-col { width:120px !important; min-width:120px !important; font-size:16px !important; }
+.schedule-table .time-col { width:100px !important; min-width:100px !important; max-width:100px !important; font-size:14px !important; }
