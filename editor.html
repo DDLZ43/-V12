@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>课表编辑器 - 白沙小学课表系统</title>
+<title>白沙小学代课系统</title>
 <link rel="stylesheet" href="css/style.css">
 <style>
 .editor-wrap { max-width: 1000px; margin: 20px auto; padding: 20px; }
@@ -19,22 +19,22 @@
 .ecard h3 { font-size: 16px; color: #5B8FF9; margin-bottom: 12px; }
 /* ===== 编辑器课表：套用 index.html「班级课表」显示效果 ===== */
 .editor-table-shell { padding: 0; margin: 0; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
-.editor-table { width: auto; min-width: 850px; margin: 0 auto; border-collapse: separate; border-spacing: 0; font-size: 14px; }
-.editor-table thead tr { height: 48px; }
-.editor-table th, .editor-table td { border: 1px solid #E8E8E8; padding: 8px 4px; text-align: center; vertical-align: middle; white-space: nowrap; }
-.editor-table th { background: linear-gradient(135deg, #5B8FF9 0%, #7AA6FF 100%); color: #fff; font-weight: 600; font-size: 15px; height: 48px; padding: 0 12px; }
-.editor-table .time-col { background: #E8F4FF; color: #3B6DB5; font-weight: 700; width: 56px; min-width: 56px; max-width: 56px; font-size: 14px; position: sticky; left: 0; z-index: 10; border-right: 2px solid #D0E3FF; padding: 8px 4px; }
-.editor-table .day-header { width: 150px; min-width: 150px; max-width: 150px; }
-.editor-table tbody tr { height: 78px; }
-.editor-table tbody td { width: 150px; min-width: 150px; max-width: 150px; padding: 6px 4px; }
+.editor-table { width: auto; min-width: 620px; margin: 0 auto; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.editor-table thead tr { height: 36px; }
+.editor-table th, .editor-table td { border: 1px solid #E8E8E8; padding: 6px 3px; text-align: center; vertical-align: middle; white-space: nowrap; }
+.editor-table th { background: linear-gradient(135deg, #5B8FF9 0%, #7AA6FF 100%); color: #fff; font-weight: 600; font-size: 14px; height: 36px; padding: 0 8px; }
+.editor-table .time-col { background: #E8F4FF; color: #3B6DB5; font-weight: 700; width: 36px; min-width: 36px; max-width: 36px; font-size: 13px; position: sticky; left: 0; z-index: 10; border-right: 2px solid #D0E3FF; padding: 6px 2px; }
+.editor-table .day-header { width: 116px; min-width: 116px; max-width: 116px; }
+.editor-table tbody tr { height: 58px; }
+.editor-table tbody td { width: 116px; min-width: 116px; max-width: 116px; padding: 4px 3px; }
 /* 课程格子：仿 index 的 course-box，内含两个可编辑输入框 */
-.editor-table .course-box { background: #F0F7FF; border-radius: 8px; padding: 4px 4px; margin: 2px 2px; height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
-.editor-table .cell-input { width: 100%; box-sizing: border-box; border: 1px solid transparent; text-align: center; padding: 2px 2px; font-size: 14px; outline: none; background: transparent; border-radius: 4px; }
+.editor-table .course-box { background: #F0F7FF; border-radius: 6px; padding: 3px 3px; margin: 1px 1px; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.editor-table .cell-input { width: 100%; box-sizing: border-box; border: 1px solid transparent; text-align: center; padding: 1px 1px; font-size: 12px; outline: none; background: transparent; border-radius: 4px; }
 .editor-table .cell-input:focus { border-color: #5B8FF9; background: #fff; }
 .editor-table .cell-input.course { font-weight: 700; color: #2C4A7C; }
-.editor-table .cell-input.course::placeholder { color: #A9C4F0; font-weight: 700; font-size: 12px; }
+.editor-table .cell-input.course::placeholder { color: #A9C4F0; font-weight: 700; font-size: 11px; }
 .editor-table .cell-input.teacher { border-top: 1px dashed #CFE2FF; color: #5B8FF9; }
-.editor-table .cell-input.teacher::placeholder { color: #A9C4F0; font-size: 12px; }
+.editor-table .cell-input.teacher::placeholder { color: #A9C4F0; font-size: 11px; }
 .editor-table td:hover .course-box { background: #E0EDFF; }
 .editor-table tbody tr:hover { background: #FAFBFC; }
 
@@ -50,14 +50,14 @@
 
 /* ===== 移动端适配 ===== */
 @media (max-width: 768px) {
-  .editor-table { min-width: 850px; font-size: 13px; }
-  .editor-table th { font-size: 14px; height: 44px; padding: 0 10px; }
-  .editor-table .time-col { width: 52px; min-width: 52px; max-width: 52px; font-size: 13px; }
-  .editor-table .day-header { width: 140px; min-width: 140px; max-width: 140px; }
-  .editor-table tbody tr { height: 72px; }
-  .editor-table tbody td { width: 140px; min-width: 140px; max-width: 140px; padding: 5px 3px; }
-  .editor-table .course-box { height: 56px; padding: 3px 3px; }
-  .editor-table .cell-input { font-size: 13px; }
+  .editor-table { min-width: 520px; font-size: 12px; }
+  .editor-table th { font-size: 13px; height: 34px; padding: 0 6px; }
+  .editor-table .time-col { width: 32px; min-width: 32px; max-width: 32px; font-size: 12px; padding: 4px 2px; }
+  .editor-table .day-header { width: 96px; min-width: 96px; max-width: 96px; }
+  .editor-table tbody tr { height: 52px; }
+  .editor-table tbody td { width: 96px; min-width: 96px; max-width: 96px; padding: 3px 2px; }
+  .editor-table .course-box { height: 42px; padding: 2px 2px; }
+  .editor-table .cell-input { font-size: 12px; }
   .contacts-grid { grid-template-columns: 1fr; }
   .contact-edit-card input[data-field=name] { flex: 1; width: auto; min-width: 80px; }
   .contact-edit-card input[data-field=phone] { flex: 1; width: auto; }
