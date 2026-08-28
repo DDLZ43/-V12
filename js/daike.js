@@ -21,17 +21,29 @@ __whenDataReady__(function(){
 function initUnlock(){
   var btn = document.getElementById('btnUnlock');
   var input = document.getElementById('lockInput');
+
+  function doUnlock(){
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('toolScreen').style.display = 'block';
+    document.getElementById('leaveDate').value = todayStr();
+  }
   function tryUnlock(){
     if (input.value === String(DAKE_PASSWORD)) {
-      document.getElementById('lockScreen').style.display = 'none';
-      document.getElementById('toolScreen').style.display = 'block';
-      document.getElementById('leaveDate').value = todayStr();
+      doUnlock();
     } else {
       document.getElementById('lockErr').style.display = 'block';
       input.value = '';
       input.focus();
     }
   }
+
+  // 从 editor 的「返回代课」跳转过来时（?auto=1），自动解锁，跳过口令
+  var m = /[?&]auto=([^&]*)/.exec(window.location.search);
+  if (m && m[1] === '1') {
+    doUnlock();
+    return;
+  }
+
   btn.addEventListener('click', tryUnlock);
   input.addEventListener('keydown', function(e){ if(e.key==='Enter') tryUnlock(); });
   input.focus();
