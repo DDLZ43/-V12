@@ -123,7 +123,7 @@ function initTeacherQuery() {
         if (!val) { suggest.classList.remove('show'); return; }
         var filtered = [];
         for (var i = 0; i < allTeachers.length; i++) {
-            if (allTeachers[i].toLowerCase().indexOf(val.toLowerCase()) !== -1) {
+            if (matchName(allTeachers[i], val)) {
                 filtered.push(allTeachers[i]);
             }
         }
@@ -131,13 +131,19 @@ function initTeacherQuery() {
             suggest.innerHTML = '<li class="no-match">无匹配教师</li>';
         } else {
             var lis = '';
+            var vLower = val.toLowerCase();
             for (var i = 0; i < filtered.length; i++) {
                 var t = filtered[i];
-                var idx = t.toLowerCase().indexOf(val.toLowerCase());
-                var before = t.substring(0, idx);
-                var match = t.substring(idx, idx + val.length);
-                var after = t.substring(idx + val.length);
-                lis += '<li data-name="' + t + '">' + before + '<span class="hl">' + match + '</span>' + after + '</li>';
+                var idx = t.toLowerCase().indexOf(vLower);
+                if (idx < 0) {
+                    // 首字母匹配时无中文子串可高亮，直接显示全名
+                    lis += '<li data-name="' + t + '">' + t + '</li>';
+                } else {
+                    var before = t.substring(0, idx);
+                    var match = t.substring(idx, idx + val.length);
+                    var after = t.substring(idx + val.length);
+                    lis += '<li data-name="' + t + '">' + before + '<span class="hl">' + match + '</span>' + after + '</li>';
+                }
             }
             suggest.innerHTML = lis;
         }

@@ -145,13 +145,18 @@
 #class-result .schedule-table,
 #teacher-result .schedule-table {
   display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   overflow-x: auto !important;
+  overflow-y: hidden !important;
   -webkit-overflow-scrolling: touch !important;
 }
 #class-result .schedule-table table,
 #teacher-result .schedule-table table {
+  width: max-content !important;
   min-width: 620px !important;
-  width: 100% !important;
+  max-width: none !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
 }
@@ -200,7 +205,7 @@
 /* 移动端进一步紧凑 */
 @media (max-width: 768px) {
   #class-result .schedule-table table,
-  #teacher-result .schedule-table table { min-width: 520px !important; }
+  #teacher-result .schedule-table table { width: max-content !important; min-width: 520px !important; max-width: none !important; }
   #class-result .schedule-table thead tr,
   #teacher-result .schedule-table thead tr { height: 34px !important; }
   #class-result .schedule-table tbody tr,

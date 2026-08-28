@@ -92,8 +92,8 @@
     <nav class="top-nav">
       <a href="daike.html?auto=1" class="nav-btn"><span class="nav-icon">📑</span>返回代课</a>
       <a href="index.html" class="nav-btn"><span class="nav-icon">📋</span>查看课表</a>
-      <a href="editor.html" class="nav-btn active"><span class="nav-icon">✏️</span>课表调整</a>
-      <a href="import.html" class="nav-btn"><span class="nav-icon">📥</span>原始课表导入</a>
+      <a href="editor.html" class="nav-btn active"><span class="nav-icon">✏️</span>修改数据</a>
+      <a href="import.html" class="nav-btn"><span class="nav-icon">📥</span>导入数据</a>
     </nav>
   </div>
 </header>
@@ -198,14 +198,22 @@ function renderContacts() {
   var countEl = document.getElementById('contactCount');
   var list = contactsData || [];
 
-  // 关键词过滤
+  // 关键词过滤（支持：中文姓名、电话、拼音首字母，大小写均可）
   var filtered = [];
-  var kw = (contactKeyword || '').trim().toLowerCase();
+  var kwRaw = (contactKeyword || '').trim();
+  var kw = kwRaw.toLowerCase();
+  var isAlpha = /^[a-zA-Z]+$/.test(kwRaw); // 纯字母 → 按姓名首字母/名字子串匹配
   if (kw) {
     for (var i = 0; i < list.length; i++) {
       var nm = (list[i].name || '').toLowerCase();
       var ph = (list[i].phone || '').toLowerCase();
-      if (nm.indexOf(kw) !== -1 || ph.indexOf(kw) !== -1) {
+      var hit = false;
+      if (isAlpha) {
+        hit = matchName(list[i].name, kwRaw); // 首字母 + 名字子串
+      } else {
+        hit = (nm.indexOf(kw) !== -1) || (ph.indexOf(kw) !== -1);
+      }
+      if (hit) {
         filtered.push({ index: i, item: list[i] });
       }
     }
