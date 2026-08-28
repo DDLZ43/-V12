@@ -17,22 +17,51 @@
 .btn-export { background: #fa8c16; }
 .ecard { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 20px; margin-bottom: 16px; }
 .ecard h3 { font-size: 16px; color: #5B8FF9; margin-bottom: 12px; }
-.editor-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.editor-table th { background: #5B8FF9; color: #fff; padding: 8px; border: 1px solid #eaeaea; }
-.editor-table td { border: 1px solid #eee; padding: 0; text-align: center; position: relative; }
-.cell-input { width: 100%; box-sizing: border-box; border: 1px solid transparent; text-align: center; padding: 8px 4px; font-size: 13px; outline: none; background: transparent; }
-.cell-input:focus { border-color: #5B8FF9; background: #f0f6ff; }
-.cell-input.course { font-weight: 600; color: #333; }
-.cell-input.teacher { border-top: 1px dashed #eef; }
-.time-col { width: 50px; background: #fafafa; font-weight: 600; color: #666; }
-.empty-cell { color: #bbb; height: 100%; }
-.contacts-box { font-size: 13px; }
-.contacts-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
-.contacts-row input { flex: 0 0 auto; }
-.contacts-row input[data-field=name] { width: 120px; }
-.contacts-row input[data-field=phone] { width: 140px; }
-.contacts-row span { color: #999; font-size: 12px; }
+/* ===== 编辑器课表：套用 index.html「班级课表」显示效果 ===== */
+.editor-table-shell { padding: 0; margin: 0; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+.editor-table { width: auto; min-width: 850px; margin: 0 auto; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+.editor-table thead tr { height: 48px; }
+.editor-table th, .editor-table td { border: 1px solid #E8E8E8; padding: 8px 4px; text-align: center; vertical-align: middle; white-space: nowrap; }
+.editor-table th { background: linear-gradient(135deg, #5B8FF9 0%, #7AA6FF 100%); color: #fff; font-weight: 600; font-size: 15px; height: 48px; padding: 0 12px; }
+.editor-table .time-col { background: #E8F4FF; color: #3B6DB5; font-weight: 700; width: 56px; min-width: 56px; max-width: 56px; font-size: 14px; position: sticky; left: 0; z-index: 10; border-right: 2px solid #D0E3FF; padding: 8px 4px; }
+.editor-table .day-header { width: 150px; min-width: 150px; max-width: 150px; }
+.editor-table tbody tr { height: 78px; }
+.editor-table tbody td { width: 150px; min-width: 150px; max-width: 150px; padding: 6px 4px; }
+/* 课程格子：仿 index 的 course-box，内含两个可编辑输入框 */
+.editor-table .course-box { background: #F0F7FF; border-radius: 8px; padding: 4px 4px; margin: 2px 2px; height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.editor-table .cell-input { width: 100%; box-sizing: border-box; border: 1px solid transparent; text-align: center; padding: 2px 2px; font-size: 14px; outline: none; background: transparent; border-radius: 4px; }
+.editor-table .cell-input:focus { border-color: #5B8FF9; background: #fff; }
+.editor-table .cell-input.course { font-weight: 700; color: #2C4A7C; }
+.editor-table .cell-input.course::placeholder { color: #A9C4F0; font-weight: 700; font-size: 12px; }
+.editor-table .cell-input.teacher { border-top: 1px dashed #CFE2FF; color: #5B8FF9; }
+.editor-table .cell-input.teacher::placeholder { color: #A9C4F0; font-size: 12px; }
+.editor-table td:hover .course-box { background: #E0EDFF; }
+.editor-table tbody tr:hover { background: #FAFBFC; }
+
+/* ===== 教师通讯录：卡片网格（仿 index.html 通讯录卡片样式） ===== */
+.contacts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.contact-edit-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; background: #FAFAFA; border-radius: 10px; border: 1px solid #F0F0F0; transition: all .2s; }
+.contact-edit-card:hover { background: #F0F5FF; border-color: #5B8FF9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(91,143,249,0.1); }
+.contact-edit-card input { border: 1px solid #E0E0E0; border-radius: 8px; padding: 8px 10px; font-size: 14px; outline: none; background: #fff; transition: border-color .2s; }
+.contact-edit-card input:focus { border-color: #5B8FF9; box-shadow: 0 0 0 3px rgba(91,143,249,0.15); }
+.contact-edit-card input[data-field=name] { width: 150px; font-weight: 600; color: #333; }
+.contact-edit-card input[data-field=phone] { width: 170px; color: #5B8FF9; }
 .hint-line { background: #f6f8ff; border-left: 4px solid #5B8FF9; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 16px; font-size: 13px; color: #555; line-height: 1.6; }
+
+/* ===== 移动端适配 ===== */
+@media (max-width: 768px) {
+  .editor-table { min-width: 850px; font-size: 13px; }
+  .editor-table th { font-size: 14px; height: 44px; padding: 0 10px; }
+  .editor-table .time-col { width: 52px; min-width: 52px; max-width: 52px; font-size: 13px; }
+  .editor-table .day-header { width: 140px; min-width: 140px; max-width: 140px; }
+  .editor-table tbody tr { height: 72px; }
+  .editor-table tbody td { width: 140px; min-width: 140px; max-width: 140px; padding: 5px 3px; }
+  .editor-table .course-box { height: 56px; padding: 3px 3px; }
+  .editor-table .cell-input { font-size: 13px; }
+  .contacts-grid { grid-template-columns: 1fr; }
+  .contact-edit-card input[data-field=name] { flex: 1; width: auto; min-width: 80px; }
+  .contact-edit-card input[data-field=phone] { flex: 1; width: auto; }
+}
 </style>
 </head>
 <body>
@@ -114,21 +143,24 @@ function renderClassTable() {
   if(!cls){ tableWrap.innerHTML='请选择班级'; return; }
   titleEl.textContent = cls + '班  课表（点格子可直接修改）';
   var data = scheduleData[cls] || {};
-  var html = '<table class="editor-table"><thead><tr><th>节次</th>';
-  DAYS.forEach(function(d){ html += '<th>'+d+'</th>'; });
+  var html = '<div class="editor-table-shell"><table class="editor-table"><thead><tr><th class="time-col">节次</th>';
+  DAYS.forEach(function(d){ html += '<th class="day-header">'+d+'</th>'; });
   html += '</tr></thead><tbody>';
   PERIODS.forEach(function(p){
-    html += '<tr><td class="time-col">第'+p+'节</td>';
+    // 节次内容精简为数字，方便手机上修改
+    html += '<tr><td class="time-col">'+p+'</td>';
     DAYS.forEach(function(d){
       var cell = data[d] && data[d][p] ? data[d][p] : null;
       var course = cell ? cell.course : '';
       var teacher = cell ? cell.teacher : '';
-      html += '<td><input class="cell-input course" data-class="'+cls+'" data-day="'+d+'" data-period="'+p+'" data-field="course" value="'+esc(course)+'">'+
-              '<input class="cell-input teacher" data-class="'+cls+'" data-day="'+d+'" data-period="'+p+'" data-field="teacher" value="'+esc(teacher)+'"></td>';
+      html += '<td><div class="course-box">'+
+              '<input class="cell-input course" data-class="'+cls+'" data-day="'+d+'" data-period="'+p+'" data-field="course" value="'+esc(course)+'" placeholder="课程">'+
+              '<input class="cell-input teacher" data-class="'+cls+'" data-day="'+d+'" data-period="'+p+'" data-field="teacher" value="'+esc(teacher)+'" placeholder="教师">'+
+              '</div></td>';
     });
     html += '</tr>';
   });
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   tableWrap.innerHTML = html;
 }
 
@@ -137,14 +169,15 @@ function esc(s){ return String(s||'').replace(/"/g,'&quot;').replace(/&/g,'&amp;
 function renderContacts() {
   var box = document.getElementById('contactsBox');
   var list = contactsData || [];
-  var html = '';
+  var html = '<div class="contacts-grid">';
   for(var i=0;i<list.length;i++){
     var c=list[i];
-    html += '<div class="contacts-row">'+
-            '<input data-idx="'+i+'" data-field="name" value="'+esc(c.name)+'">'+
-            '<input data-idx="'+i+'" data-field="phone" value="'+esc(c.phone||'')+'">'+
+    html += '<div class="contact-edit-card">'+
+            '<input data-idx="'+i+'" data-field="name" value="'+esc(c.name)+'" placeholder="姓名">'+
+            '<input data-idx="'+i+'" data-field="phone" value="'+esc(c.phone||'')+'" placeholder="电话">'+
             '</div>';
   }
+  html += '</div>';
   box.innerHTML = html;
   // 绑定通讯录输入
   box.querySelectorAll('input').forEach(function(inp){
