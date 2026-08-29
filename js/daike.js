@@ -482,18 +482,90 @@ function copyNotif(){
   if (Object.keys(accumPool).length===0){ alert('请先勾选并生成记录'); return; }
   var text = buildNotif();
   if (!text) return;
+
+  var done = function(){ showCopyHint(); };
+
+  // 方案1：Async Clipboard API（需 HTTPS 安全上下文）
   if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(function(){
-      showCopyHint();
+    navigator.clipboard.writeText(text).then(done).catch(function(){
+      legacyCopy(text, done);
     });
-  } else {
-    // 兼容
-    var ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    showCopyHint();
+    showNotif();
+    return;
   }
+
+  // 方案2：兼容移动端（iOS/安卓）的 execCommand 复制
+  legacyCopy(text, done);
   showNotif();
+}
+
+function legacyCopy(text, done){
+  try {
+    var ta = document.createElement('textarea');
+    // 移动端（尤其 iOS Safari）需要 readonly + contentEditable + 定位固定，隐藏滚动跳位
+    ta.value = text;
+    ta.setAttribute('readonly', 'readonly');
+    ta.contentEditable = true;
+    ta.style.position = 'fixed';
+    ta.style.top = '-9999px';
+    ta.style.left = '-9999px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+
+    var selection = window.getSelection && window.getSelection();
+    var oldRange = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+    ta.focus();
+    ta.select();
+    // iOS 需要 setSelectionRange 扩展全选
+    if (typeof ta.setSelectionRange === 'function'){
+      ta.setSelectionRange(0, text.length);
+    }
+
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+
+    // 恢复之前的选区，避免破坏页面
+    if (selection && oldRange){
+      selection.removeAllRanges();
+      selection.addRange(oldRange);
+    }
+    document.body.removeChild(ta);
+
+    if (ok) { done(); return; }
+  } catch(e){}
+
+  // execCommand 失败的回退：弹窗让用户手动复制
+  showManualCopy(text);
+}
+
+function showManualCopy(text){
+  try {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'readonly');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '0';
+    textarea.style.left = '0';
+    textarea.style.width = '100%';
+    textarea.style.height = '120px';
+    textarea.style.zIndex = '9999';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    if (typeof textarea.setSelectionRange === 'function'){
+      textarea.setSelectionRange(0, text.length);
+    }
+    alert('未能自动复制，已把内容填入上方输入框，请手动长按复制后粘贴到微信。');
+  } catch(e){
+    // 最后兜底：直接在通知框显示，供用户手动复制
+    var box = document.getElementById('notifPreview');
+    if (box){
+      box.style.display = 'block';
+      box.textContent = text;
+    }
+    alert('已生成通知，请长按上方通知内容手动复制。');
+  }
 }
 
 function showCopyHint(){
