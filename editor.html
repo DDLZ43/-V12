@@ -312,7 +312,7 @@
 
 <div class="editor-wrap">
 
-  <div class="editor-panel active" id="panel-edit">
+  <div class="editor-panel" id="panel-edit">
   <div class="hint-line">
     用法：<b>选班级</b> → 表格里直接点格子<b>改课程/教师</b>，改完点 <b>保存并导出 data.json</b>，用下载的文件替换 <code>js/data.json</code> 即可上线。<br>
     新增格子：某节原本空白，直接在对应格输入内容，保存后就有这一节了。<br>
@@ -343,7 +343,7 @@
   </div>
   </div><!-- /panel-edit -->
 
-  <div class="editor-panel" id="panel-daike">
+  <div class="editor-panel active" id="panel-daike">
 
     <!-- 查询教师 -->
     <div class="ecard">
@@ -445,10 +445,10 @@
 
 <!-- 底部导航操作栏（固定底部，手机端随底部常驻） -->
 <nav class="bottom-nav">
-  <a href="#" data-panel="daike" class="bnav-btn" onclick="switchEditorPanel('daike');return false;">
+  <a href="#" data-panel="daike" class="bnav-btn active" onclick="switchEditorPanel('daike');return false;">
     <span class="bnav-text">代课</span>
   </a>
-  <a href="#" data-panel="edit" class="bnav-btn active" onclick="switchEditorPanel('edit');return false;">
+  <a href="#" data-panel="edit" class="bnav-btn" onclick="switchEditorPanel('edit');return false;">
     <span class="bnav-text">修改</span>
   </a>
   <a href="#" data-panel="import" class="bnav-btn" onclick="switchEditorPanel('import');return false;">
@@ -698,11 +698,11 @@ function switchEditorPanel(name){
   } catch(e){}
 }
 
-// 支持 editor.html#daike 打开时直接进入代课面板
+// 支持 URL 锚点直达指定面板；无锚点时默认停在初始面板（代课）
 (function(){
-  if (window.location.hash === '#daike' || window.location.hash === '#代课') {
-    switchEditorPanel('daike');
-  }
+  var h = window.location.hash;
+  if (h === '#daike' || h === '#代课') switchEditorPanel('daike');
+  else if (h === '#edit' || h === '#修改') switchEditorPanel('edit');
 })();
 
 /* ===== 导入工具逻辑（原 import.html） ===== */
