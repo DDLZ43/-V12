@@ -463,19 +463,30 @@ function buildNotif(){
     var g = groups[gk];
     var teachers = Object.keys(g.teachers).join(',');
     notif += '【'+gk+'年级  代课通知  '+dd+'  请假教师：'+teachers+' 】\n\n';
-    // 排列课程（按星期）
+    // 排列课程：先按星期（周一~周五），同星期内按班号升序
     var lines = Object.keys(g.lines);
     var dayOrder = {'星期一':1,'星期二':2,'星期三':3,'星期四':4,'星期五':5};
+    function clsNum(cls){ var m = String(cls||'').match(/\d+/); return m ? parseInt(m[0],10) : 0; }
     lines.sort(function(a,b){
-      var da = g.lines[a].week, db = g.lines[b].week;
-      var ga = gradeOrder[g.lines[a].cls.charAt(0)]||0, gb = gradeOrder[g.lines[b].cls.charAt(0)]||0;
-      if (ga!==gb) return ga-gb;
-      return (dayOrder[da]||0)-(dayOrder[db]||0);
+      var la = g.lines[a], lb = g.lines[b];
+      var da = dayOrder[la.week]||0, db = dayOrder[lb.week]||0;
+      if (da!==db) return da-db;              // 先按星期
+      return clsNum(la.cls) - clsNum(lb.cls); // 同星期按班号升序
     });
+    var lastWeek = '';                        // 每年级独立重置，防止跨年级串扰
     lines.forEach(function(lk){
       var l = g.lines[lk];
       var per = mergePeriods(l.periods);
-      var line = l.week+' '+l.cls+'班 '+per;
+      // 相同星期只显示第一个，后续相同星期用空格占位：中文星期名每字按 2 个半角空格宽度计
+      // （如"星期二"=3字 → 6空格），让班级列在常见字体下大致垂直对齐
+      var weekText = l.week;
+      if (l.week === lastWeek) {
+        var spaces = '';
+        for (var sp = 0; sp < l.week.length * 2; sp++) spaces += ' ';
+        weekText = spaces;                     // 每字 2 空格占位
+      }
+      lastWeek = l.week;
+      var line = weekText+' '+l.cls+'班 '+per;
       if (l.bz) line += '  代班主任';
       notif += line+'\n';
     });
