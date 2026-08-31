@@ -714,71 +714,145 @@ function parseTSV(text) {
   return text.trim().split('\n').map(function(line) { return line.split('\t'); });
 }
 
+// 拆分一个单元格内的信息：允许 课程\n教师 或 课程\n教师\n教室（也容忍同一格用空格分隔课程和教师）
+function splitCell(raw) {
+  var s = String(raw || '').trim();
+  if (!s || s === 'nan') return null;
+  var parts = s.split(/\r?\n/).map(function(x){ return x.trim(); }).filter(function(x){ return x; });
+  if (parts.length === 1) {
+    var sp = parts[0].split(/\s+/).filter(function(x){ return x; });
+    if (sp.length >= 2) parts = sp;
+  }
+  if (!parts.length) return null;
+  var course = parts[0];
+  var teacher = parts.length > 1 ? parts[1] : '';
+  var room = parts.length > 2 ? parts.slice(2).join(' ') : '-';
+  return { course: course, teacher: teacher, room: room };
+}
+
+// 判断某行是否为「节次行」（老格式第2行，含较多 1-6 数字）
+function looksLikePeriodRow(row) {
+  if (!row) return false;
+  var periodHits = 0, total = 0;
+  for (var i = 0; i < row.length; i++) {
+    var v = String(row[i] || '').trim();
+    if (!v || v === 'nan') continue;
+    total++;
+    if (['1','2','3','4','5','6'].indexOf(v) !== -1) periodHits++;
+  }
+  return total > 2 && periodHits >= 5;
+}
+
+// 判断某格是否为班级名（如 一1、二10、六13）
+function isClassName(v) {
+  return /^[一二三四五六]\d+$/.test(String(v || '').trim());
+}
+
 function generateData() {
   var raw = document.getElementById('inputData').value.trim();
   if (!raw) { alert('请先粘贴 Excel 数据'); return; }
 
   var rows = parseTSV(raw);
-  if (rows.length < 3) { alert('数据行数不足，请检查是否包含表头和数据'); return; }
+  if (rows.length < 2) { alert('数据行数不足，请检查是否包含表头和数据'); return; }
 
   try {
     scheduleDataLocal = {};
 
     var weekRow = rows[0];
-    var periodRow = rows[1];
-
     var colMap = [];
-    for (var i = 1; i < weekRow.length; i++) {
-      var week = String(weekRow[i] || '').trim();
-      var period = String(periodRow[i] || '').trim();
-      if (period === '午休' || period === 'nan' || period === '') continue;
-      if (['1','2','3','4','5','6'].indexOf(period) !== -1 &&
-          ['星期一','星期二','星期三','星期四','星期五'].indexOf(week) !== -1) {
-        colMap.push({ col: i, week: week, period: parseInt(period) });
-      }
-    }
+    var twoRowMode = false;   // true=老格式(每班两行)  false=新格式(每班一行)
 
-    if (colMap.length === 0) {
-      showAlert('err', '未能识别到课表列，请检查第1行是否为星期、第2行是否为节次（1-6）');
+    var secondIsPeriod = rows.length > 1 && looksLikePeriodRow(rows[1]);
+    var secondIsClass   = rows.length > 1 && isClassName(rows[1][0]);
+
+    if (secondIsPeriod) {
+      // ===== 老格式：第1行星期、第2行节次、第3行起每班两行 =====
+      twoRowMode = true;
+      var periodRow = rows[1];
+      for (var i = 1; i < weekRow.length; i++) {
+        var week = String(weekRow[i] || '').trim();
+        var period = String(periodRow[i] || '').trim();
+        if (period === '午休' || period === 'nan' || period === '') continue;
+        if (['1','2','3','4','5','6'].indexOf(period) !== -1 &&
+            ['星期一','星期二','星期三','星期四','星期五'].indexOf(week) !== -1) {
+          colMap.push({ col: i, week: week, period: parseInt(period) });
+        }
+      }
+    } else if (secondIsClass) {
+      // ===== 新格式(结构A)：表头第1行每个数据列上方就是星期标题，星期名重复出现=该星期多节 =====
+      // 每班一行，每格=课程\n教师[\n教室]
+      var lastWeek = '';
+      var periodCount = 0;
+      for (var k = 1; k < weekRow.length; k++) {
+        var wk2 = String(weekRow[k] || '').trim();
+        if (['星期一','星期二','星期三','星期四','星期五'].indexOf(wk2) !== -1) {
+          // 星期标题列 = 一个数据列位；星期名切换则节次重新从1计
+          periodCount = (wk2 !== lastWeek) ? 1 : (periodCount + 1);
+          lastWeek = wk2;
+          colMap.push({ col: k, week: wk2, period: periodCount });
+        } else {
+          // 空列/午休列：跳过，不登记为数据列
+          if (!lastWeek) continue;
+        }
+      }
+    } else {
+      showAlert('err', '未能识别到课表结构。\n\n老格式：第1行星期、第2行节次(1-6)、其后每班两行。\n新格式：第1行星期（星期一~星期五）、其后每班一行，每格写 课程\\n教师。');
       return;
     }
 
-    var rowIdx = 2;
-    var classPattern = /^[一二三四五六]\d+$/;
+    if (colMap.length === 0) {
+      showAlert('err', '未能识别到课表列，请检查第1行是否为星期（星期一~星期五）');
+      return;
+    }
 
-    while (rowIdx < rows.length) {
-      var classRow = rows[rowIdx];
-      if (!classRow || classRow.length === 0) { rowIdx++; continue; }
-
-      var className = String(classRow[0] || '').trim();
-      if (!classPattern.test(className)) { rowIdx++; continue; }
-
-      if (rowIdx + 1 >= rows.length) break;
-      var teacherRow = rows[rowIdx + 1];
-
-      if (!scheduleDataLocal[className]) scheduleDataLocal[className] = {};
-
-      for (var m = 0; m < colMap.length; m++) {
-        var mapping = colMap[m];
-        var col = mapping.col;
-        var week = mapping.week;
-        var period = mapping.period;
-
-        var course = String(classRow[col] || '').trim();
-        var teacher = String(teacherRow[col] || '').trim();
-
-        if (!course || course === 'nan' || course === '' ||
-            !teacher || teacher === 'nan' || teacher === '') continue;
-
-        if (!scheduleDataLocal[className][week]) scheduleDataLocal[className][week] = {};
-        scheduleDataLocal[className][week][period] = {
-          course: course,
-          teacher: teacher,
-          room: '-'
-        };
+    if (twoRowMode) {
+      // ===== 老格式解析（每班两行：课程行 + 教师行） =====
+      var rowIdx = 2;
+      while (rowIdx < rows.length) {
+        var classRow = rows[rowIdx];
+        if (!classRow || classRow.length === 0) { rowIdx++; continue; }
+        var className = String(classRow[0] || '').trim();
+        if (!isClassName(className)) { rowIdx++; continue; }
+        if (rowIdx + 1 >= rows.length) break;
+        var teacherRow = rows[rowIdx + 1];
+        if (!scheduleDataLocal[className]) scheduleDataLocal[className] = {};
+        for (var m = 0; m < colMap.length; m++) {
+          var mapping = colMap[m];
+          var col = mapping.col;
+          var week = mapping.week;
+          var period = mapping.period;
+          var course = String(classRow[col] || '').trim();
+          var teacher = String(teacherRow[col] || '').trim();
+          if (!course || course === 'nan' || !teacher || teacher === 'nan') continue;
+          if (!scheduleDataLocal[className][week]) scheduleDataLocal[className][week] = {};
+          scheduleDataLocal[className][week][period] = {
+            course: course, teacher: teacher, room: '-'
+          };
+        }
+        rowIdx += 2;
       }
-
-      rowIdx += 2;
+    } else {
+      // ===== 新格式解析（每班一行，每格=课程\n教师\n教室） =====
+      for (var r = 1; r < rows.length; r++) {
+        var row = rows[r];
+        if (!row || row.length === 0) continue;
+        var clsName = String(row[0] || '').trim();
+        if (!isClassName(clsName)) continue;
+        if (!scheduleDataLocal[clsName]) scheduleDataLocal[clsName] = {};
+        for (var n = 0; n < colMap.length; n++) {
+          var mp = colMap[n];
+          var cellVal = row[mp.col];
+          if (cellVal === undefined) continue;
+          var parsed = splitCell(cellVal);
+          if (!parsed) continue;
+          if (!scheduleDataLocal[clsName][mp.week]) scheduleDataLocal[clsName][mp.week] = {};
+          scheduleDataLocal[clsName][mp.week][mp.period] = {
+            course: parsed.course,
+            teacher: parsed.teacher,
+            room: parsed.room
+          };
+        }
+      }
     }
 
     var classCount = Object.keys(scheduleDataLocal).length;
