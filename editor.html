@@ -767,15 +767,21 @@ function generateData() {
 
     if (secondIsPeriod) {
       // ===== 老格式：第1行星期、第2行节次、第3行起每班两行 =====
+      // 注意：星期名可能是合并单元格（只在每组首列出现），需要向后延续填充，
+      // 否则只有每组第1节能映射到星期，其余节次会全部丢失。
       twoRowMode = true;
       var periodRow = rows[1];
+      var curWeek = '';
       for (var i = 1; i < weekRow.length; i++) {
-        var week = String(weekRow[i] || '').trim();
+        var wkCell = String(weekRow[i] || '').trim();
         var period = String(periodRow[i] || '').trim();
+        // 遇到新星期名则更新当前星期，否则继承上一个（合并单元格延续）
+        if (['星期一','星期二','星期三','星期四','星期五'].indexOf(wkCell) !== -1) {
+          curWeek = wkCell;
+        }
         if (period === '午休' || period === 'nan' || period === '') continue;
-        if (['1','2','3','4','5','6'].indexOf(period) !== -1 &&
-            ['星期一','星期二','星期三','星期四','星期五'].indexOf(week) !== -1) {
-          colMap.push({ col: i, week: week, period: parseInt(period) });
+        if (['1','2','3','4','5','6'].indexOf(period) !== -1 && curWeek) {
+          colMap.push({ col: i, week: curWeek, period: parseInt(period) });
         }
       }
     } else if (secondIsClass) {
