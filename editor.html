@@ -772,9 +772,21 @@ function looksLikePeriodRow(row) {
   return total > 2 && periodHits >= 5;
 }
 
-// 判断某格是否为班级名（如 一1、二10、六13）
+// 班级名规范化：把各种写法统一成标准「年级+数字」（如 一（2）班 -> 一2、一(2)班 -> 一2、一2班 -> 一2、一1 -> 一1）
+// 返回标准班级名；无法识别时返回空字符串。
+function normalizeClassName(v) {
+  var s = String(v || '').trim();
+  if (/^[一二三四五六]\d+$/.test(s)) return s;              // 已是 一1 / 二10
+  var m = s.match(/^([一二三四五六])[（(](\d+)[）)]班?$/);   // 一（2）班 / 一(2)班 / 一（2）
+  if (m) return m[1] + m[2];
+  var m2 = s.match(/^([一二三四五六])(\d+)班$/);             // 一2班 / 二10班
+  if (m2) return m2[1] + m2[2];
+  return '';
+}
+
+// 判断某格是否为班级名（兼容 一1、一2班、一（2）班、一(2)班 等写法）
 function isClassName(v) {
-  return /^[一二三四五六]\d+$/.test(String(v || '').trim());
+  return normalizeClassName(v) !== '';
 }
 
 // 解析二维课表数组，生成 data.json；返回 {classCount, recordCount, teacherCount}
@@ -840,8 +852,9 @@ function buildRows(rows) {
       while (rowIdx < rows.length) {
         var classRow = rows[rowIdx];
         if (!classRow || classRow.length === 0) { rowIdx++; continue; }
-        var className = String(classRow[0] || '').trim();
-        if (!isClassName(className)) { rowIdx++; continue; }
+        var classNameAny = String(classRow[0] || '').trim();
+        var className = normalizeClassName(classNameAny);
+        if (!className) { rowIdx++; continue; }
         if (rowIdx + 1 >= rows.length) break;
         var teacherRow = rows[rowIdx + 1];
         if (!scheduleDataLocal[className]) scheduleDataLocal[className] = {};
@@ -865,8 +878,8 @@ function buildRows(rows) {
       for (var r = 1; r < rows.length; r++) {
         var row = rows[r];
         if (!row || row.length === 0) continue;
-        var clsName = String(row[0] || '').trim();
-        if (!isClassName(clsName)) continue;
+        var clsName = normalizeClassName(String(row[0] || '').trim());
+        if (!clsName) continue;
         if (!scheduleDataLocal[clsName]) scheduleDataLocal[clsName] = {};
         for (var n = 0; n < colMap.length; n++) {
           var mp = colMap[n];
@@ -1051,11 +1064,18 @@ function downloadTemplate() {
     data.push(tr);   // 下行：教师名
   }
   var ws = XLSX.utils.aoa_to_sheet(data);
-  // 合并星期单元格（第1行）：每星期占 7 列
+  // 合并单元格
   var merges = [];
+  // 1) 第1行星期列：每星期占 7 列
   for (var d2 = 0; d2 < days.length; d2++) {
     var sCol = d2 * 7 + 1;               // 0-based 列
     merges.push({ s: { r: 0, c: sCol }, e: { r: 0, c: sCol + 6 } });
+  }
+  // 2) A列（第1列）每个班的上下两行合并：每班两行(课程行+教师行)，班级名填一次
+  //    第0班起始行=2，后每班+2
+  for (var i = 0; i < 80; i++) {
+    var baseR = 2 + i * 2;               // 0-based 起始行（该班课程行）
+    merges.push({ s: { r: baseR, c: 0 }, e: { r: baseR + 1, c: 0 } });
   }
   ws['!merges'] = merges;
   var wb = XLSX.utils.book_new();
