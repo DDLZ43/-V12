@@ -34,10 +34,10 @@ function fmtDateSlash(dateStr){
 /* ==================== 教师搜索 ==================== */
 
 /* 增强版姓名匹配：
-   1. 中文/原样子串匹配（"王"匹配"王丽君"）
-   2. 拼音首字母连续子串（"wlj"匹配"王丽君"）
-   3. 拼音首字母子序列（"zhx"匹配"张艳红（小）"，"g"匹配"周国林"）
-   会自动跳过姓名里的括号等非汉字字符，避免污染首字母串。 */
+   支持两种完整匹配方式：
+   1. 输入完整姓名（如"王丽君"）→ 与教师姓名完全一致
+   2. 输入姓名每个字的首字母（如"wlj"）→ 与教师姓名首字母串完全一致
+   仅做完整匹配，不包含子串/模糊匹配。 */
 function __dkInitials(name){
   var py = (typeof window !== 'undefined' && window.PY_MAP) ? window.PY_MAP : {};
   var out = '', str = String(name || '');
@@ -47,26 +47,19 @@ function __dkInitials(name){
   }
   return out;
 }
+/* 匹配规则（只支持两种，均为完整匹配）：
+   1. 输入完整姓名（中文）：如"王丽君"，须与教师姓名完全一致
+   2. 输入姓名每个字的首字母：如"wlj"匹配"王丽君"（须输入完整的姓氏+每个字的首字母）*/
 function __dkMatchName(name, kwRaw){
   var kw = String(kwRaw || '').trim();
   if (!kw) return true;
-  var kwL = kw.toLowerCase();
-  var nmL = String(name || '').toLowerCase();
-  // 中文 / 原样子串
-  if (nmL.indexOf(kwL) !== -1) return true;
-  // 拼音首字母
-  var initials = __dkInitials(name).toLowerCase();
-  if (!initials) return false;
-  // 连续子串
-  if (initials.indexOf(kwL) !== -1) return true;
-  // 子序列（按顺序逐字匹配）
-  var pos = 0;
-  for (var j = 0; j < kwL.length; j++) {
-    pos = initials.indexOf(kwL.charAt(j), pos);
-    if (pos === -1) return false;
-    pos++;
+  // 纯字母 → 与"姓名每个字的首字母"完全相等
+  if (/^[a-zA-Z]+$/.test(kw)) {
+    var initials = __dkInitials(name).toLowerCase();
+    return initials === kw.toLowerCase();
   }
-  return kwL.length > 0;
+  // 中文 → 与完整姓名完全一致
+  return String(name || '') === kw;
 }
 
 function initTeacherSuggest(){
