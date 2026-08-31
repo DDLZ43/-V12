@@ -116,12 +116,18 @@ function __loadData__() {
         '语':'Y','活':'H','姜':'J','桂':'G','阿':'A','蛟':'J'
       };
       // 返回一个姓名的拼音首字母串（大写），如 "敖裕华" -> "AYH"
+      // 说明：跳过括号及括号内文字（如 "张艳红（小）" -> "ZYH"），
+      // 这样按拼音首字母检索时不会受括号里的补充说明影响。
       window.getPinyinInitials = function(str) {
         if (!str) return '';
         var s = String(str);
         var out = '';
+        var inParen = false;   // 是否在括号内
         for (var i = 0; i < s.length; i++) {
           var ch = s.charAt(i);
+          if (ch === '(' || ch === '（') { inParen = true; continue; }
+          if (ch === ')' || ch === '）') { inParen = false; continue; }
+          if (inParen) continue;          // 括号内文字不参与首字母计算
           if (PY_MAP[ch]) out += PY_MAP[ch];
           else { out += ch.toUpperCase(); }
         }

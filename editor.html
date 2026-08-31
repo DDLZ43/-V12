@@ -157,6 +157,10 @@
 .tool-btn:active { transform: scale(0.98); }
 .tool-btn-secondary { background: #f5f5f5; color: #333; margin-top: 8px; }
 .tool-btn-secondary:hover { background: #e8e8e8; }
+.tool-file { display: block; width: 100%; padding: 12px; border: 1px dashed #95C9E8; border-radius: 8px; background: #f7fbff; color: #333; font-size: 14px; box-sizing: border-box; }
+.tool-file:hover { border-color: #3FA7D4; background: #eef7ff; }
+.upload-state { margin-top: 10px; font-size: 13px; color: #52c41a; }
+.upload-state.err { color: #cf1322; }
 .tool-btn-success { background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%); }
 .tool-btn-success:hover { background: linear-gradient(135deg, #45a317 0%, #52c41a 100%); }
 #import_output { display: none; }
@@ -397,30 +401,55 @@
   <div class="editor-panel" id="panel-import">
     <div class="import-panel">
 
-      <!-- 转换工具 -->
+      <!-- 第一步：下载模板 -->
       <div class="tool-card">
-        <h3>原始课表导入 / 转换工具</h3>
+        <h3>① 第一步 · 下载课表模板</h3>
         <div class="hint">
-          <strong>使用步骤：</strong><br>
-          1. 在 Excel 中选中整个课表区域（<strong>包含第1行星期、第2行节次、所有班级课程和教师行</strong>），按 Ctrl+C 复制<br>
-          2. 粘贴到下方文本框中<br>
-          3. 点击"生成数据"，预览确认后下载 data.json 文件<br>
-          4. 将下载的 data.json 放到项目 js/ 目录下替换原文件<br>
-          <br>
-          <strong>说明：</strong>转换会自动把新课表的教师，与当前已有的通讯录电话合并，<strong>原有电话不会丢失</strong>。
+          点击下方按钮下载 <strong>课表模板.xlsx</strong>。模板已按「一~六共 80 个班」预留了空行：<br>
+          • <strong>第1行</strong>：星期（星期一 ~ 星期五，已合并单元格）<br>
+          • <strong>第2行</strong>：节次（1 2 3 4 午休 5 6，每天一组）<br>
+          • <strong>第3行起</strong>：每两个空行对应一个班，<strong>上行填课程名、下行填教师名</strong>，第1列填班级（如 一1、二10）。<br>
+          <br>在模板里填好后保存，进入第二步上传。
         </div>
-        <label>粘贴 Excel 数据</label>
-        <textarea id="inputData" class="tool-textarea" placeholder="请从 Excel 复制课表数据后粘贴到这里...
+        <button class="tool-btn" onclick="downloadTemplate()">⬇ 下载课表模板（.xlsx）</button>
+      </div>
+
+      <!-- 第二步：上传 / 粘贴 -->
+      <div class="tool-card">
+        <h3>② 第二步 · 上传课表数据</h3>
+        <div class="hint">
+          <strong>方式一（推荐）：</strong>选择已填好的课表 Excel 文件直接上传。<br>
+          <strong>方式二：</strong>也可以把 Excel 课表区域（第1行星期、第2行节次、所有班级课程/教师行）<strong>Ctrl+C 复制</strong>后，粘贴到下方文本框。
+        </div>
+        <label>选择课表文件（.xlsx / .xls）</label>
+        <input type="file" id="fileInput" class="tool-file" accept=".xlsx,.xls">
+        <div id="uploadState" class="upload-state"></div>
+        <div style="margin-top:14px;border-top:1px dashed #E3E7EE;"></div>
+        <label>或粘贴 Excel 数据</label>
+        <textarea id="inputData" class="tool-textarea" placeholder="（可选）从 Excel 复制后粘贴到这里…
 
 格式要求：
 第1行：星期行（星期 星期一 星期一 ... 星期五）
 第2行：节次行（班级 1 2 3 4 午休 5 6 1 2...）
-第3行起：每两行一个班级，第一行课程名，第二行教师名"></textarea>
-        <button class="tool-btn" onclick="generateData()">生成 data.json</button>
+第3行起：每两行一个班级，上行课程名、下行教师名"></textarea>
+        <button class="tool-btn" onclick="prepareImport()">上传 / 粘贴完成，下一步</button>
       </div>
 
-      <div id="import_output" class="tool-card">
-        <h3>预览与下载</h3>
+      <!-- 第三步：中间确认 -->
+      <div id="import_confirm" class="tool-card" style="display:none;">
+        <h3>③ 第三步 · 确认导入</h3>
+        <div id="confirmAlert"></div>
+        <div class="stats" id="confirmStats"></div>
+        <div class="hint" style="margin-top:10px;">
+          请核对上方数据：<strong>班级数、课节数、教师数</strong>是否符合预期？确认无误后点击下方按钮生成 data.json。<br>
+          需要重新导入请点「重新导入」。
+        </div>
+        <button class="tool-btn tool-btn-success" onclick="confirmImport()">✔ 确认无误 → 生成 data.json</button>
+        <button class="tool-btn tool-btn-secondary" onclick="resetImport()">重新导入</button>
+      </div>
+
+      <div id="import_output" class="tool-card" style="display:none;">
+        <h3>④ 生成结果 · 预览与下载</h3>
         <div id="resultAlert"></div>
         <div class="stats" id="statsArea"></div>
         <div class="preview-wrap">
@@ -748,22 +777,18 @@ function isClassName(v) {
   return /^[一二三四五六]\d+$/.test(String(v || '').trim());
 }
 
-function generateData() {
-  var raw = document.getElementById('inputData').value.trim();
-  if (!raw) { alert('请先粘贴 Excel 数据'); return; }
+// 解析二维课表数组，生成 data.json；返回 {classCount, recordCount, teacherCount}
+function buildRows(rows) {
+  if (!rows || rows.length < 2) { throw new Error('数据行数不足，请检查是否包含表头和数据'); }
 
-  var rows = parseTSV(raw);
-  if (rows.length < 2) { alert('数据行数不足，请检查是否包含表头和数据'); return; }
+  scheduleDataLocal = {};
 
-  try {
-    scheduleDataLocal = {};
+  var weekRow = rows[0];
+  var colMap = [];
+  var twoRowMode = false;   // true=老格式(每班两行)  false=新格式(每班一行)
 
-    var weekRow = rows[0];
-    var colMap = [];
-    var twoRowMode = false;   // true=老格式(每班两行)  false=新格式(每班一行)
-
-    var secondIsPeriod = rows.length > 1 && looksLikePeriodRow(rows[1]);
-    var secondIsClass   = rows.length > 1 && isClassName(rows[1][0]);
+  var secondIsPeriod = rows.length > 1 && looksLikePeriodRow(rows[1]);
+  var secondIsClass   = rows.length > 1 && isClassName(rows[1][0]);
 
     if (secondIsPeriod) {
       // ===== 老格式：第1行星期、第2行节次、第3行起每班两行 =====
@@ -802,13 +827,11 @@ function generateData() {
         }
       }
     } else {
-      showAlert('err', '未能识别到课表结构。\n\n老格式：第1行星期、第2行节次(1-6)、其后每班两行。\n新格式：第1行星期（星期一~星期五）、其后每班一行，每格写 课程\\n教师。');
-      return;
+      throw new Error('未能识别到课表结构。\n\n老格式：第1行星期、第2行节次(1-6)、其后每班两行。\n新格式：第1行星期（星期一~星期五）、其后每班一行，每格写 课程\\n教师。');
     }
 
     if (colMap.length === 0) {
-      showAlert('err', '未能识别到课表列，请检查第1行是否为星期（星期一~星期五）');
-      return;
+      throw new Error('未能识别到课表列，请检查第1行是否为星期（星期一~星期五）');
     }
 
     if (twoRowMode) {
@@ -863,8 +886,7 @@ function generateData() {
 
     var classCount = Object.keys(scheduleDataLocal).length;
     if (classCount === 0) {
-      showAlert('err', '未能解析到任何班级数据，请检查班级名格式（如"一1"、"二2"等）');
-      return;
+      throw new Error('未能解析到任何班级数据，请检查班级名格式（如"一1"、"二2"等）');
     }
 
     var scheduleArray = [];
@@ -906,17 +928,139 @@ function generateData() {
     };
     generatedJSText = JSON.stringify(generatedJSON, null, 2);
 
-    showResult(classCount, scheduleArray.length, teacherSet.size);
-  } catch (err) {
-    console.error(err);
-    showAlert('err', '转换出错：' + err.message);
-  }
+    return { classCount: classCount, recordCount: scheduleArray.length, teacherCount: teacherSet.size };
 }
 
 function showAlert(type, msg) {
   var alertBox = document.getElementById('resultAlert');
   var typeClass = type === 'err' ? 'alert-err' : 'alert-info';
   alertBox.innerHTML = '<div class="alert ' + typeClass + '">' + msg + '</div>';
+}
+
+/* ===== 三步导入：下载模板 / 上传/粘贴 / 确认 ===== */
+var pendingRows = null;
+
+function showConfirmAlert(type, msg) {
+  var box = document.getElementById('confirmAlert');
+  var cls = type === 'err' ? 'alert-err' : 'alert-info';
+  box.innerHTML = '<div class="alert ' + cls + '">' + msg + '</div>';
+}
+
+function collectStats() {
+  var classCount = Object.keys(scheduleDataLocal).length;
+  var recordCount = 0, teacherSet = new Set();
+  for (var cls in scheduleDataLocal) {
+    for (var wk in scheduleDataLocal[cls]) {
+      for (var prd in scheduleDataLocal[cls][wk]) {
+        recordCount++;
+        teacherSet.add(scheduleDataLocal[cls][wk][prd].teacher);
+      }
+    }
+  }
+  return { classCount: classCount, recordCount: recordCount, teacherCount: teacherSet.size };
+}
+
+function prepareImport() {
+  var rows;
+  if (pendingRows) {
+    rows = pendingRows;               // 优先使用上传文件读到的二维数组
+  } else {
+    var raw = document.getElementById('inputData').value.trim();
+    if (!raw) { alert('请先上传课表文件，或粘贴 Excel 数据'); return; }
+    rows = parseTSV(raw);
+  }
+  try {
+    buildRows(rows);
+    var stats = collectStats();
+    document.getElementById('import_confirm').style.display = 'block';
+    document.getElementById('confirmStats').innerHTML =
+      '<span class="stat-item">班级: ' + stats.classCount + '</span>' +
+      '<span class="stat-item">课节: ' + stats.recordCount + '</span>' +
+      '<span class="stat-item">教师: ' + stats.teacherCount + '</span>';
+    showConfirmAlert('info', '已识别课表，请核对班级数、课节数、教师数是否符合预期，确认后生成 data.json。');
+    var el = document.getElementById('import_confirm');
+    if (el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (e) {
+    showConfirmAlert('err', '解析出错：' + e.message);
+    document.getElementById('confirmStats').innerHTML = '';
+    document.getElementById('import_confirm').style.display = 'block';
+  }
+}
+
+function confirmImport() {
+  var stats = collectStats();
+  if (!stats.recordCount) { alert('暂时没有可用数据，请重新导入'); return; }
+  document.getElementById('import_confirm').style.display = 'none';
+  // generatedJSON / generatedJSText 已在 buildRows 中生成
+  showResult(stats.classCount, stats.recordCount, stats.teacherCount);
+}
+
+function resetImport() {
+  pendingRows = null;
+  document.getElementById('inputData').value = '';
+  var up = document.getElementById('uploadState');
+  if (up) { up.className = 'upload-state'; up.textContent = ''; }
+  var fi = document.getElementById('fileInput');
+  if (fi) fi.value = '';
+  var c = document.getElementById('import_confirm'); if (c) c.style.display = 'none';
+  var o = document.getElementById('import_output'); if (o) o.style.display = 'none';
+  alert('已重置，请重新上传或粘贴课表。');
+}
+
+// 上传 Excel 文件 → 读取为二维数组
+(function(){
+  var fi = document.getElementById('fileInput');
+  if (!fi) return;
+  fi.addEventListener('change', function(){
+    var f = fi.files && fi.files[0];
+    if (!f) { pendingRows = null; return; }
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try {
+        var wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
+        var ws = wb.Sheets[wb.SheetNames[0]];
+        pendingRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        var up = document.getElementById('uploadState');
+        up.className = 'upload-state';
+        up.textContent = '✅ 已读取「' + f.name + '」（' + pendingRows.length + ' 行）。确认无误后可点下方「下一步」。';
+      } catch (err) {
+        var up = document.getElementById('uploadState');
+        up.className = 'upload-state err';
+        up.textContent = '读取文件失败：' + err.message;
+      }
+    };
+    reader.readAsArrayBuffer(f);
+  });
+})();
+
+// 下载课表模板（80 个班 × 每班两行，第1行星期合并单元格、第2行节次）
+function downloadTemplate() {
+  var days = ['星期一','星期二','星期三','星期四','星期五'];
+  var periods = ['1','2','3','4','午休','5','6'];
+  var row1 = ['星期'];
+  var row2 = ['班级'];
+  for (var d = 0; d < days.length; d++) {
+    row1.push(days[d], '', '', '', '', '', '');
+    row2 = row2.concat(periods);
+  }
+  var data = [row1, row2];
+  for (var i = 0; i < 80; i++) {
+    var cr = [''], tr = [''];
+    for (var c2 = 0; c2 < 35; c2++) { cr.push(''); tr.push(''); }
+    data.push(cr);   // 上行：课程名（第1列填班级）
+    data.push(tr);   // 下行：教师名
+  }
+  var ws = XLSX.utils.aoa_to_sheet(data);
+  // 合并星期单元格（第1行）：每星期占 7 列
+  var merges = [];
+  for (var d2 = 0; d2 < days.length; d2++) {
+    var sCol = d2 * 7 + 1;               // 0-based 列
+    merges.push({ s: { r: 0, c: sCol }, e: { r: 0, c: sCol + 6 } });
+  }
+  ws['!merges'] = merges;
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '课表');
+  XLSX.writeFile(wb, '课表模板.xlsx');
 }
 
 function showResult(classCount, recordCount, teacherCount) {

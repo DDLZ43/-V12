@@ -41,8 +41,12 @@ function fmtDateSlash(dateStr){
 function __dkInitials(name){
   var py = (typeof window !== 'undefined' && window.PY_MAP) ? window.PY_MAP : {};
   var out = '', str = String(name || '');
+  var inParen = false;
   for (var i = 0; i < str.length; i++) {
     var ch = str.charAt(i);
+    if (ch === '(' || ch === '（') { inParen = true; continue; }
+    if (ch === ')' || ch === '）') { inParen = false; continue; }
+    if (inParen) continue;          // 括号内文字（补充说明）不参与首字母
     if (py[ch]) out += py[ch];
   }
   return out;
