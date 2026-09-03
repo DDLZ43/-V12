@@ -283,6 +283,26 @@
     font-size: 16px;
   }
   .dk-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+  /* 请假日期：强制与上下（下拉/教师)输入框同宽同盒，值靠左显示，避免看起来偏短/居中留白 */
+  .dk-leavebar .date-input {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: left;
+    -webkit-appearance: none;
+    appearance: none;
+    color: #333;
+  }
+  /* 兼容 Chrome/Edge/Safari：让日期文字靠左，且编辑区尽量铺满框宽 */
+  .date-input::-webkit-date-and-time-value,
+  .date-input::-webkit-datetime-edit {
+    text-align: left;
+    margin-left: 0;
+    width: 100%;
+  }
+  .date-input::-webkit-calendar-picker-indicator { flex-shrink: 0; }
   .dk-toolbar .date-input { width: 100%; font-size: 16px; }
   .dk-btn { width: 100%; font-size: 15px; padding: 12px; }
   .copy-bar { flex-direction: column; align-items: stretch; gap: 10px; }
