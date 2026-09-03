@@ -441,7 +441,8 @@ function doExportExcel(){
     var cls = p[1];
     var teacher = p[2];
     var wk = p[4];
-    rows.push([dd, wk, teacher, '', cls, periodName(num), '', today, 1, (num===1?0.5:'')]);
+    var reason = p[5] || '';                       // 第6段：请假事由 → D列
+    rows.push([dd, wk, teacher, reason, cls, periodName(num), '', today, 1, (num===1?0.5:'')]);
   });
   exportExcel(rows);
 }
