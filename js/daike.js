@@ -138,6 +138,23 @@ function initTeacherSuggest(){
   document.addEventListener('click', function(e){
     if (!e.target.closest('.input-wrap')) suggest.classList.remove('show');
   });
+
+  // 输入框失焦：若联想只剩唯一匹配则自动查询（无需手动点「查询课程」）
+  input.addEventListener('blur', function(){
+    setTimeout(function(){
+      if (!suggest.classList.contains('show')) return;      // 已被下拉点击「点选」处理掉
+      var v = String(input.value || '').trim();
+      if (!v) { suggest.classList.remove('show'); return; }
+      var cands = allTeachersArr.filter(function(t){ return __dkMatchName(t, v); });
+      if (cands.length === 1) {
+        input.value = cands[0];
+        suggest.classList.remove('show');
+        doQuery();
+      } else if (cands.length === 0) {
+        suggest.classList.remove('show');
+      }
+    }, 200);
+  });
 }
 
 function updateActive(items){
@@ -333,7 +350,8 @@ function clearAccum(){
 
 /* ==================== 全选 ==================== */
 function initTool(){
-  document.getElementById('btnQuery').addEventListener('click', doQuery);
+  var bq = document.getElementById('btnQuery');
+  if (bq) bq.addEventListener('click', doQuery);
   document.getElementById('btnSelectAll').addEventListener('click', toggleSelectAll);
   document.getElementById('btnRecord').addEventListener('click', doGenerateRecord);
   document.getElementById('btnExport').addEventListener('click', doExportExcel);
@@ -380,17 +398,32 @@ function doGenerateRecord(){
   var cbs = document.querySelectorAll('#scheduleArea input[type=checkbox]:checked');
   if (cbs.length===0){ alert('请先勾选课程'); return; }
 
+  // 请假事由必填
+  var leaveReasonInput = null;
+  var reason = '';
+  var __leaveReasonEl = document.getElementById('leaveReason');
+  if (__leaveReasonEl) {
+    reason = String(__leaveReasonEl.value || '').trim();
+    leaveReasonInput = __leaveReasonEl;
+  }
+  if (!reason) { alert('请先选择请假事由'); return; }
+
   var count = 0;
   cbs.forEach(function(cb){
     var k = cb.getAttribute('data-key');
-    // 累积到累积池
-    if (!accumPool[k]){ accumPool[k] = true; count++; }
+    // 累积到累积池（key 追加请假事由为第6段）
+    var fullKey = k + '|' + reason;
+    if (!accumPool[fullKey]){ accumPool[fullKey] = true; count++; }
     cb.checked = false;
     cb.closest('.period-row').classList.remove('selected');
   });
   updateAccumBar();
   resetSelectAllBtn();
   refreshDayBtns();
+
+  // 生成成功后恢复请假事由下拉为占位空
+  if (leaveReasonInput) leaveReasonInput.value = '';
+
   alert('已生成记录并加入累积，新增 '+count+' 条（累计 '+Object.keys(accumPool).length+' 条）。');
 }
 
@@ -446,12 +479,17 @@ function buildNotif(){
     var isBZ = parseInt(p[3]);
     var wk = p[4];
     var grade = cls.charAt(0);
-    if (!groups[grade]) groups[grade] = { lines:{}, teachers:{} };
+    if (!groups[grade]) groups[grade] = { lines:{}, reasons:{}, reasonOrder:[] };
     var g = groups[grade];
+    // 按请假事由收集该年级请假教师（同事由合并得一组）
+    var rs = (p[5] || '').trim();
+    if (rs) {
+      if (!g.reasons[rs]) { g.reasons[rs] = {}; g.reasonOrder.push(rs); }
+      g.reasons[rs][teacher] = true;
+    }
     var lineKey = wk+'|'+cls;
     if (!g.lines[lineKey]) g.lines[lineKey] = { week:wk, cls:cls, periods:[], bz:isBZ };
     g.lines[lineKey].periods.push(num);
-    g.teachers[teacher]=true;
   });
 
   // 构建每年级文本
@@ -461,8 +499,17 @@ function buildNotif(){
   var notif = '';
   gradeKeys.forEach(function(gk){
     var g = groups[gk];
-    var teachers = Object.keys(g.teachers).join(',');
-    notif += '【'+gk+'年级  代课通知  '+dd+'  请假教师：'+teachers+' 】\n\n';
+    // —— 标题：每年级一段 ——
+    notif += '【'+gk+'年级  代课通知  '+dd+'   】\n';
+    // —— 请假区：按请假事由分组；首行带「请假教师：」前缀，后续行用全角空格占位对齐姓名 ——
+    var LEAD = '请假教师：';
+    var pad = '\u3000\u3000\u3000\u3000\u3000';   // 5 个全角空格（约等于前缀宽度），使姓名首字对齐
+    g.reasonOrder.forEach(function(rs, idx){
+      var names = Object.keys(g.reasons[rs]).join('、');
+      notif += (idx===0 ? LEAD : pad) + names + ' ' + rs + '\n';
+    });
+    // 请假区与节次区之间空一行
+    notif += '\n';
     // 排列课程：先按星期（周一~周五），同星期内按班号升序
     var lines = Object.keys(g.lines);
     var dayOrder = {'星期一':1,'星期二':2,'星期三':3,'星期四':4,'星期五':5};

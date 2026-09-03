@@ -92,6 +92,23 @@
 .suggest-list li:hover, .suggest-list li.active { background: #F0F5FF; color: #3FA7D4; }
 .suggest-list li .hl { color: #35A0CF; font-weight: 700; }
 .suggest-list .no-match { color: #999; cursor: default; text-align: center; }
+/* ===== 代课顶部：请假事由 + 请假日期 并排行 ===== */
+.dk-leavebar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.dk-leavebar label { font-size: 14px; color: #555; font-weight: 500; white-space: nowrap; }
+.reason-select {
+  padding: 11px 34px 11px 15px;
+  border: 1px solid #DCE3EC;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fff;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  min-width: 150px;
+  color: #333;
+  cursor: pointer;
+}
+.reason-select:focus { border-color: #3FA7D4; box-shadow: 0 0 0 3px rgba(63,167,212,.18); }
 .dk-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
 .date-input {
   border: 1px solid #DCE3EC; border-radius: 10px; padding: 11px 15px; font-size: 15px;
@@ -250,6 +267,11 @@
   .dk-query { flex-direction: column; align-items: stretch; gap: 10px; }
   .dk-query .input-wrap,
   .dk-query input { width: 100%; min-width: auto; }
+  /* 代课顶部分行：手机上事由、日期尽量并排填满 */
+  .dk-leavebar { gap: 8px; }
+  .dk-leavebar label { font-size: 14px; }
+  .dk-leavebar .reason-select { flex: 1; min-width: 0; font-size: 16px; }
+  .dk-leavebar .date-input { flex: 1; min-width: 0; font-size: 16px; }
   .dk-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
   .dk-toolbar .date-input { width: 100%; font-size: 16px; }
   .dk-btn { width: 100%; font-size: 15px; padding: 12px; }
@@ -352,17 +374,28 @@
     <!-- 查询教师 -->
     <div class="ecard">
       <div class="ecard-title"><span class="title-bar"></span><h3>教师请假登记</h3></div>
+      <!-- 上层：请假事由 + 请假日期（并排） -->
+      <div class="dk-leavebar">
+        <label>请假事由：</label>
+        <select id="leaveReason" class="reason-select">
+          <option value="">请选择请假事由</option>
+          <option value="事假">事假</option>
+          <option value="病假">病假</option>
+          <option value="培训">培训</option>
+          <option value="婚假">婚假</option>
+          <option value="产假">产假</option>
+          <option value="陪护假">陪护假</option>
+        </select>
+        <label>请假日期：</label>
+        <input type="date" id="leaveDate" class="date-input">
+      </div>
+      <!-- 下层：教师姓名输入（点联想即查询） -->
       <div class="dk-query">
         <label>教师姓名：</label>
         <div class="input-wrap">
           <input type="text" id="teacherInput" placeholder="输入并选择教师姓名" autocomplete="off">
           <ul id="teacherSuggest" class="suggest-list"></ul>
         </div>
-        <button id="btnQuery" class="dk-btn dk-btn-blue">查询课程</button>
-      </div>
-      <div class="dk-toolbar">
-        <span>请假日期：</span>
-        <input type="date" id="leaveDate" class="date-input">
         <button id="btnSelectAll" class="dk-btn dk-btn-green">全选</button>
       </div>
     </div>
