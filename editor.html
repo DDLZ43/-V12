@@ -267,15 +267,15 @@
 
   /* 代课工具：移动端竖排 + 全宽按钮 */
   .dk-query { flex-direction: column; align-items: stretch; gap: 10px; }
-  .dk-query .input-wrap,
-  .dk-query input { width: 100%; min-width: auto; }
+  .dk-query .input-wrap { width: 100%; box-sizing: border-box; }
+  .dk-query input { width: 100%; min-width: 0; box-sizing: border-box; }
   /* 代课顶部：手机上「请假事由」「请假日期」改为上下（纵向）布局 */
   .dk-leavebar { flex-direction: column; align-items: stretch; gap: 12px; }
   .dk-field { flex-direction: column; align-items: stretch; gap: 4px; flex-shrink: 0; }
   .dk-field label { align-self: flex-start; }
-  .dk-field .reason-select,
-  .dk-field .date-input {
-    flex: 1;
+  /* 统一「请假事由」「请假日期」「教师姓名」三个输入框为满宽且同盒模型，保证左边框对齐 */
+  .dk-leavebar .reason-select,
+  .dk-leavebar .date-input {
     width: 100%;
     min-width: 0;
     max-width: 100%;
