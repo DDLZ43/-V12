@@ -442,7 +442,7 @@ function doExportExcel(){
   var WK = {'星期天':0,'星期日':0,'星期一':1,'星期二':2,'星期三':3,'星期四':4,'星期五':5,'星期六':6};
 
   var rows = [];
-  var today = todayStr();
+  var today = fmtDateSlash(todayStr());
   keys.forEach(function(k){
     var p = k.split('|');
     var num = parseInt(p[0]);
