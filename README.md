@@ -6,7 +6,7 @@
 
 ```
 ├── index.html          课表系统（班级课表 / 教师课表 / 通讯录）
-├── editor.html         课表调整（可视化改课表 + 内嵌「代课工具」面板）
+├── daike.html         课表调整（可视化改课表 + 内嵌「代课工具」面板）
 ├── import.html         原始课表导入（从 Excel 生成 data.json）
 ├── admin.html          管理后台（数据统计）
 ├── js/

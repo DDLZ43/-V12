@@ -17,7 +17,7 @@ description: 本项目必须遵守的核心规则
 
 ## 二、页面结构
 - **index.html** 课表速查助手（班级课表 / 个人课表 / 教师通讯录 / 统计）→ 逻辑在 `js/app.js`。
-- **editor.html** 代课管理助手（底部导航三 tab：代课 / 修改 / 导入）。
+- **daike.html** 代课管理助手（底部导航三 tab：代课 / 修改 / 导入）。
   - 默认进入「代课」面板（`panel-daike` 默认 active）。
   - URL 锚点：`#daike` / `#代课` 直达代课，`#edit` / `#修改` 直达修改。
   - 「修改」页含可视化改课表（`bindTableInputs` 实时写回 `scheduleData`）、教师通讯录（可改号码）。
@@ -44,12 +44,12 @@ description: 本项目必须遵守的核心规则
 
 ## 四、关键 JS 模块
 - `js/app.js`：index 的班级课表、个人课表、通讯录搜索（`window.matchName` 支持中文/拼音首字母）、统计。
-- `js/editor`（editor.html 内联）：`fillClassSelect`、`renderClassTable`、`bindTableInputs`、`renderContacts`、`switchEditorPanel`、导入逻辑 `generateData`/`downloadData`/`copyData`。
+- `js/editor`（daike.html 内联）：`fillClassSelect`、`renderClassTable`、`bindTableInputs`、`renderContacts`、`switchEditorPanel`、导入逻辑 `generateData`/`downloadData`/`copyData`。
 - `js/daike.js`：`initTeacherSuggest`（搜索联想）、`doQuery`、`getTeacherCourses`、勾选节次、累积池（`accumPool`）、`buildNotif`（生成通知）、`copyNotif`（一键复制）、`doExportExcel`。
 - 复制兼容：`copyNotif` → `legacyCopy`（移动端 execCommand：readonly+contentEditable+setSelectionRange+定位隐藏）→ `showManualCopy`（兜底弹手动复制条）；优先用 `navigator.clipboard`。
 
 ## 五、样式要点
-- 编辑器在 editor.html 内联 `<style>` 中，含桌面/移动（`@media max-width:768px`）适配。
+- 编辑器在 daike.html 内联 `<style>` 中，含桌面/移动（`@media max-width:768px`）适配。
 - 底部导航 `.bottom-nav` 固定，`left:0;right:0`，desktop padding `10px 12px`，mobile `8px 8px`。
 - `.editor-wrap` 左右 padding 已与底部导航对齐（desktop `12px`，mobile `8px`），使通讯录等区域与底部按钮对齐不超宽。
 - 通讯录卡片 `.contact-edit-card`、网格 `.contacts-grid`；移动端输入框 `min-width:0` 防长手机号撑宽。
@@ -58,7 +58,7 @@ description: 本项目必须遵守的核心规则
 1. **语言**：对话一律用中文回复。
 2. **不要动数据**：`js/data.json` 是数据文件，除非明确要求，不要改写其内容。
 3. **保存 data.json 的编辑器按钮会下载文件**，替换本地 `js/data.json` 后需推送到 GitHub 才上线（参考「上传.bat」）。
-4. 编辑大文件（editor.html 含大量内联 CSS/JS）用精确的替换，改动后保持括号闭合完整。
+4. 编辑大文件（daike.html 含大量内联 CSS/JS）用精确的替换，改动后保持括号闭合完整。
 5. 改 CSS/JS 后提醒用户 **强刷（Ctrl+F5）** 清缓存看效果。
 
 ## 七、上线 / 部署约定

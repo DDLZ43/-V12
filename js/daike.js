@@ -432,8 +432,16 @@ function doExportExcel(){
   var keys = Object.keys(accumPool);
   if (keys.length===0){ alert('累积池为空，请先勾选课程并生成记录'); return; }
 
+  // 基准日 = 请假日期框所选（YYYY-MM-DD），手动拆分以避开 '-' 的 UTC 解析偏差
+  var ddRaw = document.getElementById('leaveDate').value || todayStr();
+  var dp = ddRaw.split('-');
+  var baseDate = new Date(parseInt(dp[0],10), (parseInt(dp[1],10)-1), parseInt(dp[2],10)); // 本地基准日
+  var baseIdx = baseDate.getDay();                 // 0=周日..6=周六
+
+  // 星期中文 → JS getDay() 数值（周一=1..周五=5）
+  var WK = {'星期天':0,'星期日':0,'星期一':1,'星期二':2,'星期三':3,'星期四':4,'星期五':5,'星期六':6};
+
   var rows = [];
-  var dd = document.getElementById('leaveDate').value || todayStr();
   var today = todayStr();
   keys.forEach(function(k){
     var p = k.split('|');
@@ -442,7 +450,15 @@ function doExportExcel(){
     var teacher = p[2];
     var wk = p[4];
     var reason = p[5] || '';                       // 第6段：请假事由 → D列
-    rows.push([dd, wk, teacher, reason, cls, periodName(num), '', today, 1, (num===1?0.5:'')]);
+
+    // 方案A：该行 A 列真实日期 = 基准日 + (本行星期几到基准日星期几的差值)
+    var wkIdx = (typeof WK[wk] === 'number') ? WK[wk] : baseIdx;
+    var off = wkIdx - baseIdx;
+    var ad = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + off);
+    var dateA = ad.getFullYear() + '/' + (ad.getMonth()+1) + '/' + ad.getDate(); // 斜杠、不带零
+
+    rows.push([dateA, wk, teacher, reason, cls, periodName(num), '', today, 1, (num===1?0.5:'')]);
+    //          A     B   C       D       E    F             G   H     I  J
   });
   exportExcel(rows);
 }
