@@ -345,22 +345,37 @@
   }
   }
 
-/* ===== 编辑器标题：居中 + 标题字体 ===== */
-.header-inner { justify-content: center !important; }
-.logo-text {
-  font-size: 22px !important;
-  font-weight: 700 !important;
-  color: #1d4e63 !important;
-  letter-spacing: 1px !important;
-  font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif !important;
+/* ===== 页头标题：参照首页「课表速查助手」顶部居中（同步同款结构/留白/字号/间距） ===== */
+.top-header { display: block !important; }
+.header-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: auto !important;
+  padding: 15px 16px 10px !important;
 }
 .logo-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  text-align: center;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 12px !important;
+  gap: 4px !important;
+  max-width: 100% !important;
+}
+.logo-text {
+  font-size: 24px !important;
+  font-weight: bold !important;
+  color: #1d4e63 !important;
+  letter-spacing: 1px !important;
+  text-align: center !important;
+  line-height: 1.3 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: 100% !important;
 }
 .logo-sub {
   font-size: 14px !important;
@@ -369,6 +384,14 @@
   letter-spacing: 1.5px !important;
   text-align: center !important;
   white-space: nowrap !important;
+  margin-top: 2px !important;
+}
+/* 手机端标题缩小：与首页 index 保持一致 */
+@media (max-width: 768px){
+  .logo-text { font-size: 20px !important; letter-spacing: .5px !important; }
+}
+@media (max-width: 400px){
+  .logo-text { font-size: 18px !important; }
 }
 </style>
 </head>
