@@ -538,7 +538,7 @@ function buildNotif(filterGrade){
     notif += '【'+gk+'年级  代课通知】\n';
     // —— 请假区：按请假事由分组；首行带「请假教师：」前缀，后续行用全角空格占位对齐姓名 ——
     var LEAD = '请假：';
-        var pad = '      ';   // 第一行前缀“请假：”约等于 6 个半角空格宽度，用它占位对齐姓名首字
+        var pad = '     ';   // 手机微信实测：5 个英文半角空格即可与“请假：”前缀对齐姓名首字
 
     g.reasonOrder.forEach(function(rs, idx){
       var names = Object.keys(g.reasons[rs]).join('、');
@@ -569,7 +569,7 @@ function buildNotif(filterGrade){
         weekText = spaces;                     // 每字 2 空格占位
       }
       lastWeek = l.week;
-      var line = weekText+' '+l.cls+'班 '+per;
+            var line = weekText+' '+l.cls+' '+per;
       if (l.bz) line += '  代班主任';
       notif += line+'\n';
     });
