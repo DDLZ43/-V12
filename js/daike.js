@@ -500,7 +500,8 @@ function buildNotif(filterGrade){
   // 通知头部时间段：开始时间 至 结束时间（斜杠不带零，默认未填=今天）
   var __s = document.getElementById('startDate').value || todayStr();
   var __e = document.getElementById('endDate').value || todayStr();
-  var dd = fmtDateSlash(__s) + ' 至 ' + fmtDateSlash(__e);
+  var __mmd = function(s){ var p=(s||'').split('-'); return p.length>=3 ? (parseInt(p[1],10)+'/'+parseInt(p[2],10)) : ''; };
+  var dd = __mmd(__s) + ' 至 ' + __mmd(__e);
   // 按年级分组
   var groups = {};   // 年级 -> {lines:[], teachers:{}}
   var keys = Object.keys(accumPool);
@@ -534,13 +535,14 @@ function buildNotif(filterGrade){
   gradeKeys.forEach(function(gk){
     var g = groups[gk];
     // —— 标题：每年级一段 ——
-    notif += '【'+gk+'年级  代课通知  '+dd+'   】\n';
+    notif += '【'+gk+'年级  代课通知】\n';
     // —— 请假区：按请假事由分组；首行带「请假教师：」前缀，后续行用全角空格占位对齐姓名 ——
-    var LEAD = '请假教师：';
-    var pad = '\u3000\u3000\u3000\u3000\u3000';   // 5 个全角空格（约等于前缀宽度），使姓名首字对齐
+    var LEAD = '请假：';
+        var pad = '     ';   // 第一行前缀“请假：”约 5 个半角列，用同宽半角空格占位对齐姓名首字
+
     g.reasonOrder.forEach(function(rs, idx){
       var names = Object.keys(g.reasons[rs]).join('、');
-      notif += (idx===0 ? LEAD : pad) + names + ' ' + rs + '\n';
+      notif += (idx===0 ? LEAD : pad) + names + '（' + rs + ' ' + dd + '）\n';
     });
     // 请假区与节次区之间空一行
     notif += '\n';
@@ -571,7 +573,7 @@ function buildNotif(filterGrade){
       if (l.bz) line += '  代班主任';
       notif += line+'\n';
     });
-    notif += '\n辛苦转发通知至年级组内。\n\n';
+    notif += '\n辛苦年级主任转发至组内。\n\n';
   });
   return notif.trim();
 }
@@ -705,8 +707,11 @@ function segCopyPanel(){
   o.id = 'dkSegMask';
   o.style.cssText = 'position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9997;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;';
 
-  var chips = ['<button type="button" data-g="" class="seg-chip">全部</button>'];
-  grades.forEach(function(g){ chips.push('<button type="button" data-g="'+g+'" class="seg-chip">'+g+'年级</button>'); });
+    function chipBtn(g, label){
+    return '<button type="button" class="seg-chip" data-g="'+g+'" style="border:none;padding:11px 18px;font-size:16px;border-radius:22px;margin:3px 3px;font-weight:600;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent;background:#eef4fb;color:#333">'+label+'</button>';
+  }
+  var chips = [ chipBtn('', '全部') ];
+  grades.forEach(function(g){ chips.push(chipBtn(g, g+'年级')); });
 
   o.innerHTML =
     '<div style="background:#fff;border-radius:14px;max-width:640px;width:100%;padding:16px;box-sizing:border-box;max-height:90vh;display:flex;flex-direction:column">' +
