@@ -281,9 +281,8 @@ function toggleDay(day){
   cbs.forEach(function(cb){ if(!cb.checked) allChecked=false; });
   var target = !allChecked;
   cbs.forEach(function(cb){
-    cb.checked = target;
+        cb.checked = target;
     cb.closest('.period-row').classList.toggle('selected', target);
-    onCourseToggle(cb.getAttribute('data-key'), target);
   });
   var btn = document.getElementById('dsbtn_'+day);
   if (btn){
@@ -376,9 +375,8 @@ function toggleSelectAll(){
   cbs.forEach(function(cb){ if(!cb.checked) allChecked=false; });
   var target = !allChecked; // 全选变为true，取消变为false
   cbs.forEach(function(cb){
-    cb.checked = target;
+        cb.checked = target;
     cb.closest('.period-row').classList.toggle('selected', target);
-    onCourseToggle(cb.getAttribute('data-key'), target);
   });
   var btn = document.getElementById('btnSelectAll');
   if (target){
@@ -750,9 +748,18 @@ function buildNotif(filterGrade){
         notif += line + '\n';
       });
     });
-    notif += '\n\u8F9B\u82E6\u5E74\u7EA7\u4E3B\u4EFB\u8F6C\u53D1\u81F3\u7EC4\u5185\u3002\n\n';
+        notif += '\n\u8F9B\u82E6\u5E74\u7EA7\u4E3B\u4EFB\u8F6C\u53D1\u81F3\u7EC4\u5185\u3002\n\n';
   });
-  return notif.trim();
+
+  // 整份最末：系统当天日期+星期（YYYY/M/D 星期X，不补零）
+  function _wzh(d){
+    return ['\u661F\u671F\u65E5','\u661F\u671F\u4E00','\u661F\u671F\u4E8C','\u661F\u671F\u4E09','\u661F\u671F\u56DB','\u661F\u671F\u4E94','\u661F\u671F\u516D'][d.getDay()];
+  }
+  var tl = new Date();
+  var tDate = tl.getFullYear() + '/' + (tl.getMonth()+1) + '/' + tl.getDate() + ' ' + _wzh(tl);
+  notif = notif.trim();
+  if (notif) notif += '\n' + tDate;
+  return notif;
 }
 
 function segCopyPanel(){
