@@ -393,10 +393,28 @@
 @media (max-width: 400px){
   .logo-text { font-size: 18px !important; }
 }
+/* === 轻提示(add成功后短暂的自动消失条)：不挡连续登记 === */
+#dkToast {
+  position: fixed; left: 50%; top: 18px;
+  transform: translateX(-50%);
+  background: rgba(18, 52, 74, 0.92);
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  transition: opacity .22s;
+}
+#dkToast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
+<div id="dkToast"></div>
 <header class="top-header">
   <div class="header-inner">
     <div class="logo-area">
@@ -458,9 +476,13 @@
             <option value="陪护假">陪护假</option>
           </select>
         </div>
+                                <div class="dk-field">
+          <label for="startDate">开始时间：</label>
+          <input type="date" id="startDate" class="date-input">
+        </div>
         <div class="dk-field">
-          <label for="leaveDate">请假日期：</label>
-          <input type="date" id="leaveDate" class="date-input">
+          <label for="endDate">结束时间：</label>
+          <input type="date" id="endDate" class="date-input">
         </div>
       </div>
       <!-- 下层：教师姓名输入（点联想即查询） -->
@@ -497,8 +519,9 @@
     <div class="ecard">
       <div class="ecard-title"><span class="title-bar"></span><h3>代课通知</h3></div>
       <div id="notifPreview"></div>
-      <div class="copy-bar">
-        <button id="btnCopy" class="dk-btn dk-btn-orange">一键复制到微信</button>
+            <div class="copy-bar">
+        <button id="btnCopy" class="dk-btn dk-btn-orange">一键复制(全文)</button>
+        <button id="btnSegCopy" class="dk-btn dk-btn-blue">分段复制到微信</button>
         <span id="copyHint">✅ 已复制，请粘贴到微信</span>
       </div>
     </div>

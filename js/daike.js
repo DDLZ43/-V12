@@ -13,8 +13,12 @@ var PERIODS_NUM = [1,2,3,4,5,6];
 // 数据已由 data-loader.js 异步加载，等数据就绪后再初始化
 __whenDataReady__(function(){
   initTeacherSuggest();
-  initTool();
-  document.getElementById('leaveDate').value = todayStr();
+    initTool();
+  // 请假开始与结束默认均为今天
+  var __sd = document.getElementById('startDate');
+  var __ed = document.getElementById('endDate');
+  if (__sd) __sd.value = todayStr();
+  if (__ed) __ed.value = todayStr();
 });
 
 function todayStr(){
@@ -359,6 +363,8 @@ function initTool(){
     if (confirm('确定清空所有累积？')) clearAccum();
   });
   document.getElementById('btnCopy').addEventListener('click', copyNotif);
+  var segBtn = document.getElementById('btnSegCopy');
+  if (segBtn) segBtn.addEventListener('click', segCopyPanel);
 }
 
 function toggleSelectAll(){
@@ -392,6 +398,15 @@ function resetSelectAllBtn(){
   btn.style.background = '#52c41a';
 }
 
+function showToast(msg){
+  var t = document.getElementById('dkToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window.__dkToastTimer);
+  window.__dkToastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
 /* ==================== 生成记录（加入累积，不导出）========================= */
 function doGenerateRecord(){
   // 取当前界面勾选的课程
@@ -419,12 +434,9 @@ function doGenerateRecord(){
   });
   updateAccumBar();
   resetSelectAllBtn();
-  refreshDayBtns();
+    refreshDayBtns();
 
-  // 生成成功后恢复请假事由下拉为占位空
-  if (leaveReasonInput) leaveReasonInput.value = '';
-
-  alert('已生成记录并加入累积，新增 '+count+' 条（累计 '+Object.keys(accumPool).length+' 条）。');
+    showToast('已新增 ' + count + ' 条（累计 ' + Object.keys(accumPool).length + ' 条）');
 }
 
 /* ==================== 导出Excel（累积池全部记录一键导出） ==================== */
@@ -433,7 +445,7 @@ function doExportExcel(){
   if (keys.length===0){ alert('累积池为空，请先勾选课程并生成记录'); return; }
 
   // 基准日 = 请假日期框所选（YYYY-MM-DD），手动拆分以避开 '-' 的 UTC 解析偏差
-  var ddRaw = document.getElementById('leaveDate').value || todayStr();
+  var ddRaw = document.getElementById('startDate').value || todayStr();
   var dp = ddRaw.split('-');
   var baseDate = new Date(parseInt(dp[0],10), (parseInt(dp[1],10)-1), parseInt(dp[2],10)); // 本地基准日
   var baseIdx = baseDate.getDay();                 // 0=周日..6=周六
@@ -481,10 +493,14 @@ function exportExcel(rows){
 }
 
 /* ==================== 生成通知（一键复制） ==================== */
-function buildNotif(){
+function buildNotif(filterGrade){
   // 若累积池为空
   if (Object.keys(accumPool).length===0){ alert('累积池为空，请先勾选课程并生成记录'); return ''; }
-  var dd = fmtDateSlash(document.getElementById('leaveDate').value || todayStr());
+  filterGrade = filterGrade || '';
+  // 通知头部时间段：开始时间 至 结束时间（斜杠不带零，默认未填=今天）
+  var __s = document.getElementById('startDate').value || todayStr();
+  var __e = document.getElementById('endDate').value || todayStr();
+  var dd = fmtDateSlash(__s) + ' 至 ' + fmtDateSlash(__e);
   // 按年级分组
   var groups = {};   // 年级 -> {lines:[], teachers:{}}
   var keys = Object.keys(accumPool);
@@ -496,6 +512,7 @@ function buildNotif(){
     var isBZ = parseInt(p[3]);
     var wk = p[4];
     var grade = cls.charAt(0);
+    if (filterGrade && grade !== filterGrade) return;
     if (!groups[grade]) groups[grade] = { lines:{}, reasons:{}, reasonOrder:[] };
     var g = groups[grade];
     // 按请假事由收集该年级请假教师（同事由合并得一组）
@@ -591,93 +608,166 @@ function copyNotif(){
   var text = buildNotif();
   if (!text) return;
 
-  var done = function(){ showCopyHint(); };
-
-  // 方案1：Async Clipboard API（需 HTTPS 安全上下文）
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(done).catch(function(){
-      legacyCopy(text, done);
-    });
+  // 优先：在“点击”这个同步手势里直接执行 execCommand 复制，手机上成功率最高
+  var ok = false;
+  try { ok = tryExecCopy(text); } catch(e){ ok = false; }
+  if (ok){
     showNotif();
+    showCopyHint();
     return;
   }
 
-  // 方案2：兼容移动端（iOS/安卓）的 execCommand 复制
-  legacyCopy(text, done);
-  showNotif();
+  // 备选：Clipboard API（桌面 HTTPS 环境友好）
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      showNotif();
+      showCopyHint();
+    }).catch(function(){
+      manualCopyPanel(text);
+    });
+    return;
+  }
+
+  // 最终兜底：弹出可“长按→复制”的大面板，保底可用
+  manualCopyPanel(text);
 }
 
-function legacyCopy(text, done){
-  try {
-    var ta = document.createElement('textarea');
-    // 移动端（尤其 iOS Safari）需要 readonly + contentEditable + 定位固定，隐藏滚动跳位
-    ta.value = text;
-    ta.setAttribute('readonly', 'readonly');
-    ta.contentEditable = true;
-    ta.style.position = 'fixed';
-    ta.style.top = '-9999px';
-    ta.style.left = '-9999px';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-
-    var selection = window.getSelection && window.getSelection();
-    var oldRange = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-    ta.focus();
-    ta.select();
-    // iOS 需要 setSelectionRange 扩展全选
-    if (typeof ta.setSelectionRange === 'function'){
-      ta.setSelectionRange(0, text.length);
-    }
-
-    var ok = false;
-    try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
-
-    // 恢复之前的选区，避免破坏页面
-    if (selection && oldRange){
-      selection.removeAllRanges();
-      selection.addRange(oldRange);
-    }
-    document.body.removeChild(ta);
-
-    if (ok) { done(); return; }
-  } catch(e){}
-
-  // execCommand 失败的回退：弹窗让用户手动复制
-  showManualCopy(text);
+function tryExecCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', 'readonly');
+  ta.contentEditable = false;
+  ta.style.position = 'fixed';
+  ta.style.top = '-9999px';
+  ta.style.left = '-9999px';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  if (typeof ta.setSelectionRange === 'function'){
+    ta.setSelectionRange(0, text.length);
+  }
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+  document.body.removeChild(ta);
+  return ok;
 }
 
-function showManualCopy(text){
-  try {
-    var textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', 'readonly');
-    textarea.style.position = 'fixed';
-    textarea.style.top = '0';
-    textarea.style.left = '0';
-    textarea.style.width = '100%';
-    textarea.style.height = '120px';
-    textarea.style.zIndex = '9999';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    if (typeof textarea.setSelectionRange === 'function'){
-      textarea.setSelectionRange(0, text.length);
-    }
-    alert('未能自动复制，已把内容填入上方输入框，请手动长按复制后粘贴到微信。');
-  } catch(e){
-    // 最后兜底：直接在通知框显示，供用户手动复制
-    var box = document.getElementById('notifPreview');
-    if (box){
-      box.style.display = 'block';
-      box.textContent = text;
-    }
-    alert('已生成通知，请长按上方通知内容手动复制。');
+function manualCopyPanel(text){
+  var old = document.getElementById('dkManualMask');
+  if (old && old.parentNode) old.parentNode.removeChild(old);
+
+  var o = document.createElement('div');
+  o.id = 'dkManualMask';
+  o.style.cssText = 'position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;';
+  o.innerHTML =
+    '<div style="background:#fff;border-radius:12px;max-width:520px;width:100%;padding:16px;box-sizing:border-box;font-family:sans-serif">' +
+      '<div style="font-size:15px;font-weight:700;color:#333;margin-bottom:10px">复制到微信</div>' +
+      '<p style="font-size:13px;color:#888;margin:0 0 8px">页面没能自动复制成功。请长按（按住约1秒）下面文字，弹出菜单点「复制」，再去微信粘贴：</p>' +
+      '<textarea id="dkManualText" readonly style="width:100%;height:160px;box-sizing:border-box;border:1px solid #ccc;border-radius:8px;padding:8px;font-size:13px;background:#fafafa"></textarea>' +
+      '<div style="text-align:right;margin-top:10px">' +
+        '<button id="dkManualClose" style="border:none;background:#3FA7D4;color:#fff;padding:9px 18px;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(o);
+
+  var tb = o.querySelector('#dkManualText');
+  tb.value = text;
+  var cbtn = o.querySelector('#dkManualClose');
+  cbtn.addEventListener('click', function(){ document.body.removeChild(o); });
+  o.addEventListener('click', function(e){ if (e.target === o) document.body.removeChild(o); });
+  tb.focus();
+  tb.select();
+  if (typeof tb.setSelectionRange === 'function'){
+    tb.setSelectionRange(0, text.length);
   }
 }
 
 function showCopyHint(){
-  var h = document.getElementById('copyHint');
-  h.style.display = 'inline';
-  setTimeout(function(){ h.style.display='none'; }, 3000);
+  showToast('已复制，请去微信粘贴');
+}
+
+/* ===== 分段复制：按年级切到各自小段（含请假教师），逐年级复制发送 ===== */
+function segCopyPanel(){
+  if (Object.keys(accumPool).length===0){ alert('请先勾选并生成记录'); return; }
+  var gOrder = ['一','二','三','四','五','六'];
+  var present = {};
+  Object.keys(accumPool).forEach(function(k){
+    present[k.split('|')[1].charAt(0)] = true;
+  });
+  var grades = gOrder.filter(function(g){ return !!present[g]; });
+  if (grades.length===0) return;
+
+  // 遮罩
+  var oldm = document.getElementById('dkSegMask');
+  if (oldm && oldm.parentNode) oldm.parentNode.removeChild(oldm);
+  var o = document.createElement('div');
+  o.id = 'dkSegMask';
+  o.style.cssText = 'position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9997;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;';
+
+  var chips = ['<button type="button" data-g="" class="seg-chip">全部</button>'];
+  grades.forEach(function(g){ chips.push('<button type="button" data-g="'+g+'" class="seg-chip">'+g+'年级</button>'); });
+
+  o.innerHTML =
+    '<div style="background:#fff;border-radius:14px;max-width:640px;width:100%;padding:16px;box-sizing:border-box;max-height:90vh;display:flex;flex-direction:column">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between">' +
+        '<div style="font-size:15px;font-weight:700;color:#333">发送到微信 · 按年级分段</div>' +
+        '<button id="dkSegClose" type="button" style="border:none;background:#eee;color:#666;border-radius:50%;width:26px;height:26px;font-size:13px;cursor:pointer">✕</button>' +
+      '</div>' +
+      '<p style="font-size:12px;color:#999;margin:6px 0 8px">点某个年级，只显示那一段（内含请假教师）；再点下方按钮复制该段。选“全部”则看整份。</p>' +
+      '<div id="dkSegChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+ chips.join('') +'</div>' +
+      '<textarea id="dkSegText" readonly style="flex:1;min-height:180px;width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;background:#fafafa"></textarea>' +
+      '<div style="display:flex;justify-content:flex-end;margin-top:10px">' +
+        '<button id="dkSegCopy" type="button" style="border:none;background:#3FA7D4;color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;cursor:pointer">复制这一段</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(o);
+
+  var ta = o.querySelector('#dkSegText');
+  var state = { grade: '' };
+
+  function applyText(){
+    var txt = state.grade ? (buildNotif(state.grade) || '') : (buildNotif() || '');
+    ta.value = txt;
+    ta.scrollTop = 0;
+    highlightChips();
+  }
+  function highlightChips(){
+    o.querySelectorAll('.seg-chip').forEach(function(c){
+      var active = (c.getAttribute('data-g')||'') === state.grade;
+      if (active){ c.style.background='#3FA7D4'; c.style.color='#fff'; }
+      else { c.style.background='#eef4fb'; c.style.color='#333'; }
+    });
+  }
+
+  o.querySelector('#dkSegChips').addEventListener('click', function(e){
+    var b = e.target.closest('.seg-chip');
+    if (!b) return;
+    state.grade = b.getAttribute('data-g') || '';
+    applyText();
+  });
+
+  o.querySelector('#dkSegCopy').addEventListener('click', function(){
+    var txt = ta.value;
+    if (!txt){ alert('暂无内容'); return; }
+    var ok = false;
+    try { ok = tryExecCopy(txt); } catch(e){ ok = false; }
+    if (ok){
+      showToast('已复制该年级段，请去微信粘贴');
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){
+        showToast('已复制该年级段，请去微信粘贴');
+      }).catch(function(){ manualCopyPanel(txt); });
+      return;
+    }
+    manualCopyPanel(txt);
+  });
+
+  o.querySelector('#dkSegClose').addEventListener('click', function(){ document.body.removeChild(o); });
+  o.addEventListener('click', function(e){ if (e.target === o) document.body.removeChild(o); });
+
+  buildNotif(); // 空跑校验用
+  applyText();
 }
