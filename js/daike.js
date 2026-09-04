@@ -493,7 +493,7 @@ function exportExcel(rows){
 }
 
 /* ==================== 生成通知（一键复制） ==================== */
-function buildNotif(filterGrade){
+function buildNotifOld(filterGrade){
   // 若累积池为空
   if (Object.keys(accumPool).length===0){ alert('累积池为空，请先勾选课程并生成记录'); return ''; }
   filterGrade = filterGrade || '';
@@ -690,6 +690,71 @@ function showCopyHint(){
 }
 
 /* ===== 分段复制：按年级切到各自小段（含请假教师），逐年级复制发送 ===== */
+/* 全新干净版 buildNotif：请假区顶格、星期分块、节次顶格、班级去”班“ */
+function buildNotif(filterGrade){
+  filterGrade = filterGrade || '';
+  var keys = Object.keys(accumPool);
+  if (!keys.length) return '';
+
+  function _md(x){ var p = String(x||'').split('-'); return p.length>=3 ? (parseInt(p[1],10)+'/'+parseInt(p[2],10)) : ''; }
+  var ls = document.getElementById('startDate') ? document.getElementById('startDate').value : '';
+  var le = document.getElementById('endDate')   ? document.getElementById('endDate').value   : '';
+  var rng = _md(ls || todayStr()) + ' \u81F3 ' + _md(le || todayStr());
+
+  var gData = {}; // grade -> { reasonOrder:[], rts:{rea:[teacher..]}, days:{wk:{cls:{cls,periods,bz}}} }
+  keys.forEach(function(k){
+    var p = (k||'').split('|');
+    if (p.length < 6) return;
+    var num = parseInt(p[0],10), cls = p[1], teacher = p[2], isbz = parseInt(p[3],10), wk = p[4], rea = (p[5]||'').trim();
+    var grade = cls.charAt(0);
+    if (filterGrade && grade !== filterGrade) return;
+    if (!gData[grade]) gData[grade] = { reasonOrder:[], rts:{}, days:{} };
+    var gd = gData[grade];
+    if (rea){
+      if (!gd.rts[rea]){ gd.rts[rea]=[]; gd.reasonOrder.push(rea); }
+      if (gd.rts[rea].indexOf(teacher) < 0) gd.rts[rea].push(teacher);
+    }
+    if (!gd.days[wk]) gd.days[wk] = {};
+    var dw = gd.days[wk];
+    if (!dw[cls]) dw[cls] = { cls:cls, periods:[], bz: isbz ? true : false };
+    if (dw[cls].periods.indexOf(num) < 0) dw[cls].periods.push(num);
+    if (isbz) dw[cls].bz = true;
+  });
+
+  var gradeNames = ['\u4E00','\u4E8C','\u4E09','\u56DB','\u4E94','\u516D'];
+  var gradeKeys = Object.keys(gData).sort(function(a,b){ return gradeNames.indexOf(a)-gradeNames.indexOf(b); });
+  var wkOrder = ['\u661F\u671F\u4E00','\u661F\u671F\u4E8C','\u661F\u671F\u4E09','\u661F\u671F\u56DB','\u661F\u671F\u4E94'];
+  function numOfCls(c){ var m=String(c||'').match(/\d+/); return m ? parseInt(m[0],10) : 0; }
+
+  var notif = '';
+  gradeKeys.forEach(function(gk){
+    var gd = gData[gk];
+    notif += '\u3010' + gk + '\u5E74\u7EA7  \u4EE3\u8BFE\u901A\u77E5\u3011\n';
+    // 请假区：每组一行，顶格
+    gd.reasonOrder.forEach(function(rea){
+      var names = gd.rts[rea].join('\u3001');
+      notif += names + '\uFF08' + rea + ' ' + rng + '\uFF09\n';
+    });
+    notif += '\n';
+    // 节次区：按星期分块
+    var weekSel = wkOrder.filter(function(w){ return gd.days[w]; });
+    weekSel.forEach(function(w, wi){
+      if (wi>0) notif += '\n';
+      notif += w + '\n';
+      var rows = Object.keys(gd.days[w]).map(function(c){ return gd.days[w][c]; });
+      rows.sort(function(a,b){ return numOfCls(a.cls)-numOfCls(b.cls); });
+      rows.forEach(function(r){
+        var per = mergePeriods(r.periods);
+        var line = r.cls + ' ' + per;
+        if (r.bz) line += '  \u4EE3\u73ED\u4E3B\u4EFB';
+        notif += line + '\n';
+      });
+    });
+    notif += '\n\u8F9B\u82E6\u5E74\u7EA7\u4E3B\u4EFB\u8F6C\u53D1\u81F3\u7EC4\u5185\u3002\n\n';
+  });
+  return notif.trim();
+}
+
 function segCopyPanel(){
   if (Object.keys(accumPool).length===0){ alert('请先勾选并生成记录'); return; }
   var gOrder = ['一','二','三','四','五','六'];
