@@ -425,7 +425,9 @@ function doGenerateRecord(){
   cbs.forEach(function(cb){
     var k = cb.getAttribute('data-key');
     // 累积到累积池（key 追加请假事由为第6段）
-    var fullKey = k + '|' + reason;
+    var _st = (document.getElementById('startDate') || {}).value || todayStr();
+    var _en = (document.getElementById('endDate') || {}).value || todayStr();
+    var fullKey = k + '|' + reason + '|' + _st + '|' + _en;
     if (!accumPool[fullKey]){ accumPool[fullKey] = true; count++; }
     cb.checked = false;
     cb.closest('.period-row').classList.remove('selected');
@@ -694,23 +696,28 @@ function buildNotif(filterGrade){
   var keys = Object.keys(accumPool);
   if (!keys.length) return '';
 
-  function _md(x){ var p = String(x||'').split('-'); return p.length>=3 ? (parseInt(p[1],10)+'/'+parseInt(p[2],10)) : ''; }
-  var ls = document.getElementById('startDate') ? document.getElementById('startDate').value : '';
-  var le = document.getElementById('endDate')   ? document.getElementById('endDate').value   : '';
-  var rng = _md(ls || todayStr()) + ' \u81F3 ' + _md(le || todayStr());
+    function _md(x){ var p = String(x||'').split('-'); return p.length>=3 ? (parseInt(p[1],10)+'/'+parseInt(p[2],10)) : ''; }
+
 
   var gData = {}; // grade -> { reasonOrder:[], rts:{rea:[teacher..]}, days:{wk:{cls:{cls,periods,bz}}} }
   keys.forEach(function(k){
     var p = (k||'').split('|');
-    if (p.length < 6) return;
+        if (p.length < 6) return;
     var num = parseInt(p[0],10), cls = p[1], teacher = p[2], isbz = parseInt(p[3],10), wk = p[4], rea = (p[5]||'').trim();
+    var stR = p[6] || '', enR = p[7] || '';
     var grade = cls.charAt(0);
     if (filterGrade && grade !== filterGrade) return;
-    if (!gData[grade]) gData[grade] = { reasonOrder:[], rts:{}, days:{} };
+    if (!gData[grade]) gData[grade] = { reasonOrder:[], rts:{}, txt:{}, days:{} };
     var gd = gData[grade];
     if (rea){
-      if (!gd.rts[rea]){ gd.rts[rea]=[]; gd.reasonOrder.push(rea); }
-      if (gd.rts[rea].indexOf(teacher) < 0) gd.rts[rea].push(teacher);
+      var stX = stR || todayStr(), enX = enR || todayStr();
+      var tri = rea + '\u0002' + stX + '\u0002' + enX;
+      if (!gd.rts[tri]){
+        gd.rts[tri] = [];
+        gd.reasonOrder.push(tri);
+        gd.txt[tri] = rea + ' ' + _md(stX) + ' \u81F3 ' + _md(enX);
+      }
+      if (gd.rts[tri].indexOf(teacher) < 0) gd.rts[tri].push(teacher);
     }
     if (!gd.days[wk]) gd.days[wk] = {};
     var dw = gd.days[wk];
@@ -729,9 +736,9 @@ function buildNotif(filterGrade){
     var gd = gData[gk];
     notif += '\u3010' + gk + '\u5E74\u7EA7  \u4EE3\u8BFE\u901A\u77E5\u3011\n';
     // 请假区：每组一行，顶格
-    gd.reasonOrder.forEach(function(rea){
+        gd.reasonOrder.forEach(function(rea){
       var names = gd.rts[rea].join('\u3001');
-      notif += names + '\uFF08' + rea + ' ' + rng + '\uFF09\n';
+      notif += names + '\uFF08' + gd.txt[rea] + '\uFF09\n';
     });
     notif += '\n';
     // 节次区：按星期分块
