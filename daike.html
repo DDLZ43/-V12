@@ -457,6 +457,18 @@
   </div>
   </div><!-- /panel-edit -->
 
+  <div class="editor-panel" id="panel-contacts">
+    <div class="card">
+      <div class="card-title"><span class="title-bar"></span><h2>教师通讯录</h2></div>
+      <div class="query-row">
+        <label>搜索教师：</label>
+        <input type="text" id="dkContInput" placeholder="输入姓名/拼音搜索..." autocomplete="off">
+      </div>
+    </div>
+    <div id="dkContResult" class="card"></div>
+  </div>
+
+
   <div class="editor-panel active" id="panel-daike">
 
     <!-- 查询教师 -->
@@ -607,8 +619,8 @@
   <a href="#" data-panel="daike" class="bnav-btn active" onclick="switchEditorPanel('daike');return false;">
     <span class="bnav-text">代课</span>
   </a>
-  <a href="#" data-panel="edit" class="bnav-btn" onclick="switchEditorPanel('edit');return false;">
-    <span class="bnav-text">修改</span>
+    <a href="#" data-panel="contacts" class="bnav-btn" onclick="switchEditorPanel('contacts');return false;">
+    <span class="bnav-text">通讯录</span>
   </a>
   <a href="#" data-panel="import" class="bnav-btn" onclick="switchEditorPanel('import');return false;">
     <span class="bnav-text">导入</span>
@@ -860,8 +872,9 @@ function switchEditorPanel(name){
 // 支持 URL 锚点直达指定面板；无锚点时默认停在初始面板（代课）
 (function(){
   var h = window.location.hash;
-  if (h === '#daike' || h === '#代课') switchEditorPanel('daike');
-  else if (h === '#edit' || h === '#修改') switchEditorPanel('edit');
+    if (h === '#daike' || h === '#代课') switchEditorPanel('daike');
+  else if (h === '#contacts' || h === '#通讯录') switchEditorPanel('contacts');
+  else if (h === '#edit' || h === '#修改') switchEditorPanel('contacts');
 })();
 
 /* ===== 导入工具逻辑（原 import.html） ===== */
@@ -1276,5 +1289,47 @@ function copyData() {
 
 <script src="lib/xlsx.full.min.js"></script>
 <script src="js/daike.js"></script>
+<script>
+/* ===== daike「通讯录」只读页（复用 index 通讯录像交互，不依赖 app.js，无编辑能力） ===== */
+(function(){
+  function fire(fn){ if (window.__whenDataReady) __whenDataReady(fn); else fn(); }
+  fire(function(){
+    var input = document.getElementById('dkContInput');
+    var box   = document.getElementById('dkContResult');
+    var showAll = false, PAGE = 5;
+    function esc(s){ return String(s==null?'':s).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function render(list){
+      if (!box) return;
+      list = list || [];
+      if (!list.length){ box.innerHTML = '<p class="no-result">&nbsp;&nbsp;未找到匹配的教师，请换关键词重试</p>'; return; }
+      var shown = (!showAll && list.length > PAGE) ? list.slice(0, PAGE) : list;
+      var h = '<div class="contacts-grid">';
+      for (var i = 0; i < shown.length; i++){
+        var c = shown[i];
+        var ph = c && c.phone ? String(c.phone) : '';
+        h += '<div class="contact-item">' +
+             '<span class="contact-name">' + esc(c && c.name) + '</span>' +
+             '<span class="contact-phone">' + (ph ? ('<a href="tel:' + esc(ph) + '">' + esc(ph) + '</a>') : '') + '</span>' +
+             '</div>';
+      }
+      h += '</div>';
+      if (!showAll && list.length > PAGE){
+        h += '<div style="text-align:center;margin-top:12px">' +
+             '<button id="btnDkMore" class="btn-blue" style="border:none;border-radius:8px;padding:9px 20px;font-size:14px;cursor:pointer;">查看全部 ' + list.length + ' 位教师</button>' +
+             '</div>';
+      }
+      box.innerHTML = h;
+      var m = document.getElementById('btnDkMore');
+      if (m) m.addEventListener('click', function(){ showAll = true; render(list); });
+    }
+    render(window.contactsData || []);
+    if (input) input.addEventListener('input', function(){
+      showAll = false;
+      var kw = this.value.trim();
+      render(kw ? (window.searchContacts ? window.searchContacts(kw) : []) : (window.contactsData || []));
+    });
+  });
+})();
+</script>
 </body>
 </html>
