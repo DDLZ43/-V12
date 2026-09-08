@@ -1323,6 +1323,14 @@ function copyData() {
       if (m) m.addEventListener('click', function(){ showAll = true; render(list); });
     }
     render(window.contactsData || []);
+    // 就绪自愈：数据可能尚未注入，等 contactsData 非空后自动补画一次
+    (function waitData(){
+      if (window.contactsData && window.contactsData.length) { render(window.contactsData); return; }
+      setTimeout(waitData, 250);
+    })();
+    if (typeof window.__whenDataReady === 'function') {
+      window.__whenDataReady(function(){ if (window.contactsData && window.contactsData.length) render(window.contactsData); });
+    }
     if (input) input.addEventListener('input', function(){
       showAll = false;
       var kw = this.value.trim();
