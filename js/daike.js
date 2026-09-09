@@ -186,6 +186,13 @@ function getTeacherCourses(name){
           total++;
         }
       }
+      // 午休：data.json 里是字符串键 '午休'，收进来统一映射成 98（98→"午休" 已由 periodName/mergePeriods 支持）
+      var dayData = scheduleData[cls][day];
+      var lun = dayData ? dayData['午休'] : null;
+      if (lun && lun.teacher === name){
+        ts[day][98] = { class: cls };
+        total++;
+      }
     }
   }
   return { schedule: ts, total: total };
@@ -234,7 +241,7 @@ function renderWeekGroups(schedule){
       var checked = accumPool[courseKey] ? 'checked' : '';
       html += '<label class="period-row" data-key="'+courseKey+'">'+
               '<input type="checkbox" data-key="'+courseKey+'" '+checked+'>'+
-              '<span class="period-info"><span class="cls">'+cls+'班</span> · 第'+num+'节'+
+                            '<span class="period-info"><span class="cls">'+cls+'班</span> · '+(num===98||num==='98'?'午休':'第'+num+'节')+
               (isBZ?'<span class="bz">代班主任</span>':'')+'</span></label>';
     }
     html += '</div></div>';
@@ -579,22 +586,22 @@ function buildNotifOld(filterGrade){
 }
 
 function mergePeriods(periods){
-  var arr = periods.slice().sort(function(a,b){return a-b;});
-  // 合并连续数字，如 3,4 -> "第3、4节"
-  var out = [];
-  var i=0;
-  while(i<arr.length){
-    var start = arr[i], end = arr[i];
-    while(i+1<arr.length && arr[i+1]===end+1){ end=arr[i+1]; i++; }
-    if (start===end || start===98){
-      if (start===98) out.push('午休');
-      else out.push('第'+start+'节');
-    } else {
-      out.push('第'+start+'、'+end+'节');
-    }
-    i++;
+  // 午休内部记作 98（或字符串'98'）；数字节全揉进“第…节”，午休放最末并用顿号相连
+  var nums = [], hasLunch = false;
+  var arr = periods.map(function(x){
+    var v = (x===98 || x==='98') ? 98 : (x===undefined||x===null) ? null : parseInt(x,10);
+    return (v && isNaN(v)) ? null : v;
+  });
+  for (var q=0; q<arr.length; q++){
+    if (arr[q]===98 || arr[q]==='98') hasLunch = true;
+    else if (arr[q]!==null) nums.push(arr[q]);
   }
-  return out.join('、');
+  nums.sort(function(a,b){ return a-b; });
+  var s = '';
+  if (nums.length) s = '第' + nums.join('、') + '节';
+  if (nums.length && hasLunch) s += '、';
+  if (hasLunch) s += '午休';
+  return s;
 }
 
 function showNotif(){

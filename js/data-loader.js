@@ -1,8 +1,7 @@
 // ==================== 数据加载器 ====================
-// 说明：课表、通讯录等基础数据统一存放在 js/data.json 中，
-// 课表系统、代课系统、管理后台都通过本文件加载同一份数据。
-// 需要修改数据时，只需用文本编辑器修改 js/data.json 一个文件即可，
-// 无需再改动任何代码。
+// 说明：课表(scheduleData) 在 js/data.json，通讯录 在 js/contacts.json。
+// 两者并行加载；课表系统、代课系统 都通过本文件把两份数据分别注入全局。
+// 改课表 → 修 js/data.json；改名单 → 修 js/contacts.json（或先维护 tmp 名单再生成）。
 // ====================================================
 
 var __SCHEDULE_READY__ = false;
@@ -15,11 +14,17 @@ function __whenDataReady__(cb) {
 }
 
 function __loadData__() {
-  fetch('js/data.json')
-    .then(function(r) { return r.json(); })
-    .then(function(D) {
+  Promise.all([
+    fetch('js/data.json').then(function(r){ return r.json(); }),
+    fetch('js/contacts.json').then(function(r){ return r.json(); })
+  ])
+    .then(function(res) {
+      var D = res[0];
+      var contactFile = res[1] || {};
       var schedule = D.scheduleData || {};
-      var contactList = D.contactsData || [];
+      var contactList = (contactFile && Array.isArray(contactFile.contactsData))
+        ? contactFile.contactsData
+        : (Array.isArray(contactFile) ? contactFile : []);
 
       // ---- 注入全局变量（与旧版 data.js 保持一致） ----
       window.scheduleData = schedule;
@@ -173,7 +178,7 @@ function __loadData__() {
       __SCHEDULE_WAITERS__ = [];
     })
     .catch(function(e) {
-      console.error('数据加载失败（js/data.json）：', e);
+      console.error('数据加载失败（js/data.json 或 js/contacts.json）：', e);
     });
 }
 

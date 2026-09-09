@@ -953,14 +953,17 @@ function buildRows(rows) {
       var periodRow = rows[1];
       var curWeek = '';
       for (var i = 1; i < weekRow.length; i++) {
-        var wkCell = String(weekRow[i] || '').trim();
+                var wkCell = String(weekRow[i] || '').trim();
         var period = String(periodRow[i] || '').trim();
         // 遇到新星期名则更新当前星期，否则继承上一个（合并单元格延续）
         if (['星期一','星期二','星期三','星期四','星期五'].indexOf(wkCell) !== -1) {
           curWeek = wkCell;
         }
-        if (period === '午休' || period === 'nan' || period === '') continue;
-        if (['1','2','3','4','5','6'].indexOf(period) !== -1 && curWeek) {
+        if (!curWeek) continue;
+        if (period === 'nan' || period === '') continue;
+        // 午休：作为独立一节登记（key 用字符串 '午休'，不占 1~6）
+        if (period === '午休') { colMap.push({ col: i, week: curWeek, period: '午休' }); continue; }
+        if (['1','2','3','4','5','6'].indexOf(period) !== -1) {
           colMap.push({ col: i, week: curWeek, period: parseInt(period) });
         }
       }
@@ -1064,21 +1067,13 @@ function buildRows(rows) {
       }
     }
 
-    // ===== 生成通讯录：与已有通讯录合并，保留电话 =====
-    var oldContacts = (typeof contactsData !== 'undefined' && contactsData) ? contactsData : [];
-    var phoneMap = {};
-    for (var c = 0; c < oldContacts.length; c++) {
-      if (oldContacts[c] && oldContacts[c].name) phoneMap[oldContacts[c].name] = oldContacts[c].phone || '';
-    }
-    var teacherNames = Array.from(teacherSet).sort(function(a, b) { return a.localeCompare(b, 'zh-CN'); });
-    var contactsArr = teacherNames.map(function(name) {
-      return { name: name, phone: phoneMap[name] || '', note: '' };
-    });
+        // 通讯录已独立存放于 js/contacts.json（维护名单改 tmp → 重建 contacts.json），
+    // 导入课表时不再把联系方式重算进 data.json。
 
-    // ===== 组装 data.json =====
+
+        // ===== 组装 data.json（只含课表，通讯录独立在 js/contacts.json） =====
     generatedJSON = {
       scheduleData: scheduleDataLocal,
-      contactsData: contactsArr,
       periods: [1, 2, 3, 4, 5, 6],
       days: ["星期一", "星期二", "星期三", "星期四", "星期五"]
     };
