@@ -808,14 +808,25 @@ function segCopyPanel(){
       '<p style="font-size:12px;color:#999;margin:6px 0 8px">点某个年级，只显示那一段（内含请假教师）；再点下方按钮复制该段。选“全部”则看整份。</p>' +
       '<div id="dkSegChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+ chips.join('') +'</div>' +
       '<textarea id="dkSegText" readonly style="flex:1;min-height:180px;width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;background:#fafafa"></textarea>' +
-      '<div style="display:flex;justify-content:flex-end;margin-top:10px">' +
+            '<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px">' +
+        '<span id="dkSegMsg" style="font-size:13px;color:#52c41a;opacity:0;transition:opacity .2s;margin-right:auto"></span>' +
         '<button id="dkSegCopy" type="button" style="border:none;background:#3FA7D4;color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;cursor:pointer">复制这一段</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(o);
 
-  var ta = o.querySelector('#dkSegText');
+    var ta = o.querySelector('#dkSegText');
   var state = { grade: '' };
+
+  // 就近反馈：把“已复制”提示显示在「复制这一段」按钮旁，1.6s 后自动淡出
+  function segMsg(msg){
+    var el = o.querySelector('#dkSegMsg');
+    if (!el) { showToast(msg); return; }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el.__t);
+    el.__t = setTimeout(function(){ el.style.opacity = '0'; }, 1600);
+  }
 
   function applyText(){
     var txt = state.grade ? (buildNotif(state.grade) || '') : (buildNotif() || '');
@@ -844,12 +855,12 @@ function segCopyPanel(){
     var ok = false;
     try { ok = tryExecCopy(txt); } catch(e){ ok = false; }
     if (ok){
-      showToast('已复制该年级段，请去微信粘贴');
+      segMsg('✅ 已复制，请粘贴到微信');
       return;
     }
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(txt).then(function(){
-        showToast('已复制该年级段，请去微信粘贴');
+        segMsg('✅ 已复制，请粘贴到微信');
       }).catch(function(){ manualCopyPanel(txt); });
       return;
     }
