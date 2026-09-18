@@ -191,12 +191,12 @@
       "星期一": {
         "1": {
           "course": "班队活动",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "2": {
           "course": "语文",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "3": {
@@ -221,19 +221,19 @@
         },
         "午休": {
           "course": "午休",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         }
       },
       "星期二": {
         "1": {
           "course": "语文",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "2": {
           "course": "语文",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "3": {
@@ -270,12 +270,12 @@
         },
         "2": {
           "course": "语文",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "3": {
           "course": "语文",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "4": {
@@ -295,19 +295,19 @@
         },
         "午休": {
           "course": "午休",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         }
       },
       "星期四": {
         "1": {
           "course": "语文",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "2": {
           "course": "语文",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "3": {
@@ -317,7 +317,7 @@
         },
         "4": {
           "course": "语活",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "5": {
@@ -349,12 +349,12 @@
         },
         "3": {
           "course": "语文",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "4": {
           "course": "语活",
-          "teacher": "毛智慧",
+          "teacher": "谭伊",
           "room": "-"
         },
         "5": {
@@ -1391,8 +1391,8 @@
           "room": "-"
         },
         "2": {
-          "course": "数学",
-          "teacher": "谢颖",
+          "course": "体育与健康",
+          "teacher": "向凌志",
           "room": "-"
         },
         "3": {
@@ -1433,8 +1433,8 @@
           "room": "-"
         },
         "3": {
-          "course": "体育与健康",
-          "teacher": "向凌志",
+          "course": "数学",
+          "teacher": "谢颖",
           "room": "-"
         },
         "4": {
