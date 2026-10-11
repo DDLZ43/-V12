@@ -111,6 +111,8 @@
   cursor: pointer;
 }
 .reason-select:focus { border-color: #3FA7D4; box-shadow: 0 0 0 3px rgba(63,167,212,.18); }
+/* 请假事由改为手动输入框：去掉为下拉箭头预留的右侧内边距，光标改为文本 */
+input.reason-select { padding: 11px 15px; cursor: text; }
 .dk-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
 .date-input {
   border: 1px solid #DCE3EC; border-radius: 10px; padding: 11px 15px; font-size: 15px;
@@ -478,15 +480,7 @@
       <div class="dk-leavebar">
         <div class="dk-field">
           <label for="leaveReason">请假事由：</label>
-          <select id="leaveReason" class="reason-select">
-            <option value="">请选择请假事由</option>
-            <option value="事假">事假</option>
-            <option value="病假">病假</option>
-            <option value="培训">培训</option>
-            <option value="婚假">婚假</option>
-            <option value="产假">产假</option>
-            <option value="陪护假">陪护假</option>
-          </select>
+                    <input id="leaveReason" class="reason-select" type="text" placeholder="请输入请假事由">
         </div>
                                 <div class="dk-field">
           <label for="startDate">开始时间：</label>

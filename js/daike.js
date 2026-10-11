@@ -426,7 +426,7 @@ function doGenerateRecord(){
     reason = String(__leaveReasonEl.value || '').trim();
     leaveReasonInput = __leaveReasonEl;
   }
-  if (!reason) { alert('请先选择请假事由'); return; }
+  if (!reason) { alert('请先填写请假事由'); return; }
 
   var count = 0;
   cbs.forEach(function(cb){
